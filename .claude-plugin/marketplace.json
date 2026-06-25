@@ -1,0 +1,31 @@
+{
+  "name": "biks-claude-tools",
+  "owner": {
+    "name": "Giorgos Marinos"
+  },
+  "metadata": {
+    "description": "BIKS Claude Tools - Claude Code plugin marketplace",
+    "version": "1.0.0",
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "team-workflow-cmd",
+      "description": "Multi-agent team workflow: orchestrates a coordinated team of subagents to refine, investigate, research, scan, plan, design, implement (parallel coders), review, validate dependencies, build tests, and verify integration for a development request.",
+      "version": "1.0.0",
+      "source": "./plugins/team-workflow-cmd",
+      "author": {
+        "name": "Giorgos Marinos"
+      }
+    },
+    {
+      "name": "tool-conventions-cmd",
+      "description": "Scaffold a new TypeScript CLI tool's documentation and configuration, or audit an existing tool against the project tool-conventions (docs/tools/<name>.md format, ~/.tool-agents/<name>/ config folder, four-tier env-var resolution chain, vendor-canonical LLM provider names, no-fallback rule). Bundles the /tool-conventions command and its tool-doc-config-architect subagent.",
+      "version": "1.0.0",
+      "source": "./plugins/tool-conventions-cmd",
+      "author": {
+        "name": "Giorgos Marinos"
+      }
+    }
+  ]
+}

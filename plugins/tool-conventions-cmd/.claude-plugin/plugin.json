@@ -1,0 +1,19 @@
+{
+  "name": "tool-conventions-cmd",
+  "description": "Scaffold a new TypeScript CLI tool's documentation and configuration, or audit an existing tool against the project tool-conventions (docs/tools/<name>.md format, ~/.tool-agents/<name>/ config folder, four-tier env-var resolution chain, vendor-canonical LLM provider names, no-fallback rule). Bundles the /tool-conventions command and its tool-doc-config-architect subagent.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Giorgos Marinos"
+  },
+  "license": "MIT",
+  "keywords": [
+    "tool-conventions",
+    "scaffold",
+    "audit",
+    "documentation",
+    "configuration",
+    "cli-tool",
+    "env-vars",
+    "conventions"
+  ]
+}
