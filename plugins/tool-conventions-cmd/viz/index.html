@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plugin — tool-conventions-cmd</title>
+<style>
+  :root {
+    /* base */
+    --bg: #fafafa;
+    --panel: #ffffff;
+    --ink: #1f2328;
+    --ink-soft: #57606a;
+    --accent: #0969da;
+    --accent-soft: #ddf4ff;
+    --rule: #d0d7de;
+    --code-bg: #f6f8fa;
+    --warn-bg: #fff8c5;
+    --warn-edge: #d4a72c;
+
+    /* 5-category card palette (extends team-workflow phase-type colors) */
+    --identity-edge: #54aeff;   --identity-bg: #ddf4ff;   /* what the agent IS   */
+    --process-edge:  #c297ff;   --process-bg:  #fcebff;   /* what the agent DOES */
+    --output-edge:   #4ac26b;   --output-bg:   #dafbe1;   /* what it PRODUCES    */
+    --rules-edge:    #f7a352;   --rules-bg:    #fff1e5;   /* CONSTRAINTS         */
+    --success-edge:  #d4a72c;   --success-bg:  #fff8c5;   /* when it is DONE     */
+    --neutral-edge:  #8c959f;   --neutral-bg:  #eaeef2;   /* spec / reference doc — no semantic category */
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+  /* layout */
+  body { display: grid; grid-template-columns: 300px 1fr; min-height: 100vh; }
+  body.no-toc { display: block; max-width: 900px; margin: 0 auto; padding: 32px 40px 80px; }
+
+  /* sticky TOC */
+  nav.toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 24px 18px;
+    background: var(--panel);
+    border-right: 1px solid var(--rule);
+    font-size: 13px;
+  }
+  body.no-toc nav.toc { display: none; }
+  nav.toc h2 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    margin: 16px 0 8px;
+  }
+  nav.toc h2:first-child { margin-top: 0; }
+  nav.toc a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink);
+    text-decoration: none;
+    padding: 5px 8px;
+    border-radius: 4px;
+    line-height: 1.35;
+  }
+  nav.toc a:hover { background: var(--accent-soft); color: var(--accent); }
+  nav.toc a.card-link .swatch {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  nav.toc a.card-link[data-category="identity"] .swatch { background: var(--identity-edge); }
+  nav.toc a.card-link[data-category="process"]  .swatch { background: var(--process-edge); }
+  nav.toc a.card-link[data-category="output"]   .swatch { background: var(--output-edge); }
+  nav.toc a.card-link[data-category="rules"]    .swatch { background: var(--rules-edge); }
+  nav.toc a.card-link[data-category="success"]  .swatch { background: var(--success-edge); }
+  nav.toc a.card-link[data-category="neutral"]  .swatch { background: var(--neutral-edge); }
+
+  main { padding: 40px 56px 80px; max-width: 1080px; }
+  body.no-toc main { padding: 0; max-width: none; }
+
+  /* page header */
+  header.title { border-bottom: 2px solid var(--ink); padding-bottom: 16px; margin-bottom: 28px; }
+  header.title h1 { margin: 0 0 6px; font-size: 28px; }
+  header.title .meta { color: var(--ink-soft); font-size: 13px; }
+
+  /* agent metadata banner */
+  section.agent-meta {
+    background: var(--accent-soft);
+    border-left: 5px solid var(--accent);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 0 0 22px;
+    font-size: 13.5px;
+  }
+  section.agent-meta dl { display: grid; grid-template-columns: 130px 1fr; gap: 4px 12px; margin: 0; }
+  section.agent-meta dt { color: var(--ink-soft); font-weight: 600; }
+  section.agent-meta dd { margin: 0; }
+  section.agent-meta code { background: rgba(255,255,255,0.6); }
+
+  /* top-note callout */
+  .top-note {
+    background: var(--warn-bg);
+    border-left: 4px solid var(--warn-edge);
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin: 0 0 28px;
+    font-size: 14px;
+  }
+
+  /* headings inside cards */
+  h1, h2, h3, h4 { line-height: 1.3; }
+  h1 { font-size: 26px; }
+  h2 { font-size: 22px; margin: 28px 0 12px; }
+  h3 { font-size: 17px; margin: 22px 0 8px; }
+  h4 { font-size: 15px; margin-top: 18px; color: var(--ink-soft); }
+
+  p { margin: 8px 0; }
+  ul, ol { margin: 8px 0 12px; padding-left: 22px; }
+  li { margin: 4px 0; }
+  li > ul, li > ol { margin: 4px 0; }
+  blockquote {
+    margin: 12px 0;
+    padding: 8px 16px;
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 4px;
+    color: #0550ae;
+  }
+
+  /* code */
+  code {
+    background: var(--code-bg);
+    border-radius: 3px;
+    padding: 1px 6px;
+    font: 13px/1.5 ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    color: #24292f;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 12px 14px;
+    overflow-x: auto;
+    font: 12.5px/1.5 ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    margin: 10px 0;
+  }
+  pre code { background: transparent; padding: 0; color: inherit; }
+
+  /* tables */
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13.5px; }
+  th, td { border: 1px solid var(--rule); padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--code-bg); font-weight: 600; }
+
+  hr { border: 0; border-top: 1px solid var(--rule); margin: 26px 0; }
+
+  /* back link */
+  .back-link { display: inline-block; margin-bottom: 18px; font-size: 13px; color: var(--accent); text-decoration: none; }
+  .back-link:hover { text-decoration: underline; }
+
+  /* ====================================================== */
+  /* CARDS — the five-category palette                       */
+  /* ====================================================== */
+  section.card {
+    border: 1px solid var(--rule);
+    border-left-width: 6px;
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 18px 0;
+    background: var(--panel);
+  }
+  section.card.identity { border-left-color: var(--identity-edge); background: linear-gradient(90deg, var(--identity-bg) 0%, var(--panel) 220px); }
+  section.card.process  { border-left-color: var(--process-edge);  background: linear-gradient(90deg, var(--process-bg)  0%, var(--panel) 220px); }
+  section.card.output   { border-left-color: var(--output-edge);   background: linear-gradient(90deg, var(--output-bg)   0%, var(--panel) 220px); }
+  section.card.rules    { border-left-color: var(--rules-edge);    background: linear-gradient(90deg, var(--rules-bg)    0%, var(--panel) 220px); }
+  section.card.success  { border-left-color: var(--success-edge);  background: linear-gradient(90deg, var(--success-bg)  0%, var(--panel) 220px); }
+  section.card.neutral  { border-left-color: var(--neutral-edge);  background: linear-gradient(90deg, var(--neutral-bg)  0%, var(--panel) 220px); }
+
+  section.card > h2.card-title {
+    margin: 0 0 12px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    border: 0;
+    padding: 0;
+  }
+  section.card > h2.card-title .card-label {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    border-radius: 4px;
+    padding: 2px 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  section.card.identity > h2.card-title .card-label { background: var(--identity-edge); }
+  section.card.process  > h2.card-title .card-label { background: var(--process-edge); }
+  section.card.output   > h2.card-title .card-label { background: var(--output-edge); }
+  section.card.rules    > h2.card-title .card-label { background: var(--rules-edge); }
+  section.card.success  > h2.card-title .card-label { background: var(--success-edge); }
+  section.card.neutral  > h2.card-title .card-label { background: var(--neutral-edge); }
+
+  section.card .card-body > *:first-child { margin-top: 0; }
+  section.card .card-body > *:last-child { margin-bottom: 0; }
+
+  /* Suppress display of any leaked raw custom tags (defence in depth) */
+  role, core-responsibilities, process, output-format, output_format, output_requirements,
+  documentation_structure, quality-standards, quality_standards, constraints,
+  success-criteria, success_criteria, invariants, workflow, inputs_from_caller,
+  pre_flight_expectation, ambiguity_handling, research_tools, pitfalls_to_preempt {
+    display: block;
+  }
+
+  /* responsive */
+  @media (max-width: 900px) {
+    body { grid-template-columns: 1fr; }
+    nav.toc { position: relative; height: auto; border-right: 0; border-bottom: 1px solid var(--rule); }
+    main { padding: 24px; }
+  }
+</style>
+</head>
+<body class="no-toc">
+<main>
+<header class="title">
+  <h1>Plugin — tool-conventions-cmd</h1>
+  <div class="meta">Source: <code>~/ai-coding/biks-claude-tools/plugins/tool-conventions-cmd</code> &middot; v1.0.0</div>
+</header>
+<section class="agent-meta">
+  <dl>
+    <dt>Name</dt><dd><code>tool-conventions-cmd</code></dd>
+    <dt>Version</dt><dd><code>1.0.0</code></dd>
+    <dt>Author</dt><dd>Giorgos Marinos</dd>
+    <dt>License</dt><dd><code>MIT</code></dd>
+    <dt>Keywords</dt><dd>tool-conventions, scaffold, audit, documentation, configuration, cli-tool, env-vars, conventions</dd>
+    <dt>Source</dt><dd><code>plugins/tool-conventions-cmd</code></dd>
+  </dl>
+</section>
+<div class="top-note">Scaffold a new TypeScript CLI tool&#x27;s documentation and configuration, or audit an existing tool against the project tool-conventions (docs/tools/&lt;name&gt;.md format, ~/.tool-agents/&lt;name&gt;/ config folder, four-tier env-var resolution chain, vendor-canonical LLM provider names, no-fallback rule). Bundles the /tool-conventions command and its tool-doc-config-architect subagent.</div>
+<h2 id="contents">Contents</h2>
+<p>This plugin bundles one slash-command and its subagent. Open either visualization below.</p>
+<section id="cmd" class="card process" data-category="process">
+  <h2 class="card-title"><span class="card-label">Command</span>/tool-conventions</h2>
+  <div class="card-body">
+    <p>Scaffold a new tool&#x27;s docs and config — or audit an existing tool — against the project&#x27;s tool-conventions (docs/tools/&lt;name&gt;.md format, ~/.tool-agents/&lt;name&gt;/ folder, four-tier env-var resolution chain, vendor-canonical LLM provider names, no-fallback rule).</p>
+    <p><a href="tool-conventions.html"><strong>Open the command visualization →</strong></a></p>
+  </div>
+</section>
+<section id="agent" class="card identity" data-category="identity">
+  <h2 class="card-title"><span class="card-label">Agent</span>tool-doc-config-architect</h2>
+  <div class="card-body">
+    <p>Scaffold documentation and configuration for a new TypeScript CLI tool, or audit an existing tool against the project&#x27;s tool-conventions. Operates in two modes — scaffold (writes docs + config artifacts) and audit (read-only conformance check).</p>
+    <p><a href="tool-doc-config-architect.html"><strong>Open the agent visualization →</strong></a></p>
+  </div>
+</section>
+</main>
+</body>
+</html>

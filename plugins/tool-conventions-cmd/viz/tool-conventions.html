@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Command — /tool-conventions</title>
+<style>
+  :root {
+    /* base */
+    --bg: #fafafa;
+    --panel: #ffffff;
+    --ink: #1f2328;
+    --ink-soft: #57606a;
+    --accent: #0969da;
+    --accent-soft: #ddf4ff;
+    --rule: #d0d7de;
+    --code-bg: #f6f8fa;
+    --warn-bg: #fff8c5;
+    --warn-edge: #d4a72c;
+
+    /* phase-type palette (from team-workflow.html) */
+    --seq-edge:    #54aeff;
+    --seq-bg:      #ddf4ff;
+    --cond-edge:   #f7a352;
+    --cond-bg:     #fff1e5;
+    --par-edge:    #c297ff;
+    --par-bg:      #fcebff;
+    --review-edge: #4ac26b;
+    --review-bg:   #dafbe1;
+    --danger-edge: #ff8182;
+    --danger-bg:   #ffebe9;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+  /* layout: 2-column grid when TOC present, single column otherwise */
+  body { display: grid; grid-template-columns: 300px 1fr; min-height: 100vh; }
+  body.no-toc { display: block; max-width: 900px; margin: 0 auto; padding: 32px 40px 80px; }
+
+  /* sticky sidebar TOC */
+  nav.toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 24px 18px;
+    background: var(--panel);
+    border-right: 1px solid var(--rule);
+    font-size: 13px;
+  }
+  body.no-toc nav.toc { display: none; }
+  nav.toc h2 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    margin: 16px 0 8px;
+  }
+  nav.toc h2:first-child { margin-top: 0; }
+  nav.toc ul, nav.toc ol { list-style: none; padding-left: 0; margin: 0; }
+  nav.toc ul ul, nav.toc ol ol { padding-left: 14px; }
+  nav.toc a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink);
+    text-decoration: none;
+    padding: 5px 8px;
+    border-radius: 4px;
+    line-height: 1.35;
+  }
+  nav.toc a:hover { background: var(--accent-soft); color: var(--accent); }
+  nav.toc a.phase .num {
+    display: inline-block;
+    min-width: 22px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--seq-edge);
+    border-radius: 4px;
+    padding: 1px 4px;
+  }
+  nav.toc a.phase[data-type="conditional"] .num { background: var(--cond-edge); }
+  nav.toc a.phase[data-type="parallel"]    .num { background: var(--par-edge); }
+  nav.toc a.phase[data-type="review"]      .num { background: var(--review-edge); }
+
+  main { padding: 40px 56px 80px; max-width: 1080px; }
+  body.no-toc main { padding: 0; max-width: none; }
+
+  /* page header */
+  header.title { border-bottom: 2px solid var(--ink); padding-bottom: 16px; margin-bottom: 28px; }
+  header.title h1 { margin: 0 0 6px; font-size: 28px; }
+  header.title .meta { color: var(--ink-soft); font-size: 13px; }
+
+  /* command metadata banner */
+  section.cmd-meta {
+    background: var(--accent-soft);
+    border-left: 5px solid var(--accent);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 0 0 22px;
+    font-size: 13.5px;
+  }
+  section.cmd-meta dl { display: grid; grid-template-columns: 130px 1fr; gap: 4px 12px; margin: 0; }
+  section.cmd-meta dt { color: var(--ink-soft); font-weight: 600; }
+  section.cmd-meta dd { margin: 0; }
+  section.cmd-meta code { background: rgba(255,255,255,0.6); }
+  section.cmd-meta .tools-list { display: flex; flex-wrap: wrap; gap: 4px 6px; }
+  section.cmd-meta .tools-list code { font-size: 11.5px; padding: 1px 6px; }
+
+  /* top-note callout */
+  .top-note {
+    background: var(--warn-bg);
+    border-left: 4px solid var(--warn-edge);
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin: 0 0 28px;
+    font-size: 14px;
+  }
+
+  /* headings */
+  h1, h2, h3, h4 { line-height: 1.3; }
+  h1 { font-size: 26px; }
+  h2, h2.section {
+    font-size: 22px;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 6px;
+    margin: 40px 0 14px;
+  }
+  h3, h3.subsection { font-size: 17px; margin: 22px 0 8px; }
+  h4 { font-size: 15px; margin-top: 18px; color: var(--ink-soft); }
+
+  p { margin: 8px 0; }
+  ul, ol { margin: 8px 0 12px; padding-left: 22px; }
+  li { margin: 4px 0; }
+  li > ul, li > ol { margin: 4px 0; }
+  blockquote {
+    margin: 12px 0;
+    padding: 8px 16px;
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 4px;
+    color: #0550ae;
+  }
+
+  /* code */
+  code {
+    background: var(--code-bg);
+    border-radius: 3px;
+    padding: 1px 6px;
+    font: 13px/1.5 ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    color: #24292f;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 12px 14px;
+    overflow-x: auto;
+    font: 12.5px/1.5 ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    margin: 10px 0;
+  }
+  pre code { background: transparent; padding: 0; color: inherit; }
+
+  /* tables */
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13.5px; }
+  th, td { border: 1px solid var(--rule); padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--code-bg); font-weight: 600; }
+  table.artifacts code { white-space: nowrap; }
+
+  hr { border: 0; border-top: 1px solid var(--rule); margin: 26px 0; }
+
+  /* back link */
+  .back-link { display: inline-block; margin-bottom: 18px; font-size: 13px; color: var(--accent); text-decoration: none; }
+  .back-link:hover { text-decoration: underline; }
+
+  /* phase cards */
+  .phase {
+    border: 1px solid var(--rule);
+    border-left-width: 6px;
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 18px 0;
+    background: var(--panel);
+  }
+  .phase.seq    { border-left-color: var(--seq-edge);    background: linear-gradient(90deg, var(--seq-bg)    0%, var(--panel) 200px); }
+  .phase.cond   { border-left-color: var(--cond-edge);   background: linear-gradient(90deg, var(--cond-bg)   0%, var(--panel) 200px); }
+  .phase.par    { border-left-color: var(--par-edge);    background: linear-gradient(90deg, var(--par-bg)    0%, var(--panel) 200px); }
+  .phase.review { border-left-color: var(--review-edge); background: linear-gradient(90deg, var(--review-bg) 0%, var(--panel) 200px); }
+
+  .phase > h3 { margin: 0 0 6px; font-size: 18px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .phase > h3 .num {
+    display: inline-block;
+    min-width: 32px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    border-radius: 4px;
+    padding: 2px 8px;
+  }
+  .phase.seq    > h3 .num { background: var(--seq-edge); }
+  .phase.cond   > h3 .num { background: var(--cond-edge); }
+  .phase.par    > h3 .num { background: var(--par-edge); }
+  .phase.review > h3 .num { background: var(--review-edge); }
+
+  /* meta row chips */
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    margin: 8px 0 14px;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .meta-row .chip {
+    background: var(--code-bg);
+    border: 1px solid var(--rule);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+  }
+  .meta-row .chip strong { color: var(--ink); margin-right: 4px; font-weight: 600; }
+
+  /* pills */
+  .pill {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .pill.fg     { background: #ddf4ff; color: #0550ae; }
+  .pill.bg     { background: #fcebff; color: #6639ba; }
+  .pill.cond   { background: #fff1e5; color: #973c00; }
+  .pill.review { background: #dafbe1; color: #1a7f37; }
+  .pill.gate   { background: #ffebe9; color: #82071e; }
+
+  /* callouts */
+  .callout {
+    background: var(--code-bg);
+    border-left: 4px solid var(--accent);
+    padding: 10px 14px;
+    border-radius: 4px;
+    margin: 12px 0;
+    font-size: 13.5px;
+  }
+  .callout.warn { background: var(--warn-bg); border-left-color: var(--warn-edge); }
+  .callout.danger { background: var(--danger-bg); border-left-color: var(--danger-edge); }
+
+  /* flow diagram */
+  .flow {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 18px;
+    margin: 0 0 32px;
+    overflow-x: auto;
+  }
+  .flow h3 { margin: 0 0 14px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); }
+  .flow-row { display: flex; align-items: stretch; gap: 6px; min-width: max-content; }
+  .flow-step {
+    display: flex; flex-direction: column;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 10px 12px;
+    background: var(--panel);
+    min-width: 120px;
+    font-size: 12px;
+  }
+  .flow-step .num { font-weight: 700; font-size: 11px; color: var(--ink-soft); }
+  .flow-step .name { font-weight: 600; color: var(--ink); margin: 2px 0; }
+  .flow-step .agent { color: var(--ink-soft); font-family: ui-monospace, monospace; font-size: 10.5px; }
+  .flow-step.seq    { border-left: 4px solid var(--seq-edge); }
+  .flow-step.cond   { border-left: 4px solid var(--cond-edge); }
+  .flow-step.par    { border-left: 4px solid var(--par-edge); }
+  .flow-step.review { border-left: 4px solid var(--review-edge); }
+  .flow-arrow { display: flex; align-items: center; color: var(--ink-soft); font-size: 18px; padding: 0 2px; }
+
+  /* responsive */
+  @media (max-width: 900px) {
+    body { grid-template-columns: 1fr; }
+    nav.toc { position: relative; height: auto; border-right: 0; border-bottom: 1px solid var(--rule); }
+    main { padding: 24px; }
+  }
+</style>
+
+</head>
+<body class="no-toc">
+  <main>
+<a href="index.html" class="back-link">&larr; Back</a>
+<header class="title">
+  <h1>/tool-conventions</h1>
+  <div class="meta">Source: <code>tool-conventions-cmd/commands/tool-conventions.md</code> &middot; Argument: <code>&lt;scaffold|audit&gt; &lt;tool-name&gt;</code></div>
+</header>
+<section class="cmd-meta">
+  <dl>
+    <dt>Invocation</dt><dd><code>/tool-conventions</code></dd>
+    <dt>Description</dt><dd>Scaffold a new tool&#x27;s docs and config — or audit an existing tool — against the project&#x27;s tool-conventions (docs/tools/&lt;name&gt;.md format, ~/.tool-agents/&lt;name&gt;/ folder, four-tier env-var resolution chain, vendor-canonical LLM provider names, no-fallback rule)</dd>
+    <dt>Argument hint</dt><dd><code>&lt;scaffold|audit&gt; &lt;tool-name&gt;</code></dd>
+    <dt>User-invocable</dt><dd><code>true</code></dd>
+    <dt>Allowed tools</dt><dd><div class="tools-list"><code>Task</code><code>Read</code><code>Write</code><code>Edit</code><code>Bash</code><code>Glob</code><code>Grep</code><code>AskUserQuestion</code></div></dd>
+    <dt>Source</dt><dd><code>tool-conventions-cmd/commands/tool-conventions.md</code></dd>
+  </dl>
+</section>
+
+<p><objective> Invoke the <code>tool-doc-config-architect</code>
+subagent to either scaffold the documentation and configuration
+artifacts for a new tool, or audit an existing tool against the
+project’s tool-conventions. This command handles all user-interaction
+(gathering missing inputs, presenting the agent’s report, optionally
+appending the recommended entry to CLAUDE.md) so the subagent can stay
+focused on file work and conformance checks.</p>
+<p>Argument: $ARGUMENTS — expected as
+<code>&lt;scaffold|audit&gt; &lt;tool-name&gt;</code>
+(e.g. <code>scaffold my-tool</code>, <code>audit my-tool</code>). If
+arguments are missing or malformed, the command will ask for them.
+</objective></p>
+<p><context> - Project root: $PWD - Project CLAUDE.md present:
+!<code>test -f CLAUDE.md &amp;&amp; echo yes || echo no</code> -
+User-global CLAUDE.md present:
+!<code>test -f ~/.claude/CLAUDE.md &amp;&amp; echo yes || echo no</code>
+- Existing docs/tools entries:
+!<code>ls docs/tools/ 2&gt;/dev/null || echo "(no docs/tools folder)"</code>
+- Existing ~/.tool-agents folders:
+!<code>ls ~/.tool-agents/ 2&gt;/dev/null || echo "(no ~/.tool-agents folder)"</code>
+- Timestamp: !<code>date "+%Y-%m-%d %H:%M:%S"</code> </context></p>
+<p><process></p>
+<ol type="1">
+<li><p><strong>Parse arguments</strong> from
+<code>$ARGUMENTS</code>:</p>
+<ul>
+<li>First token → mode (must be <code>scaffold</code> or
+<code>audit</code>).</li>
+<li>Second token → tool name (lowercase-with-hyphens).</li>
+<li>If <code>$ARGUMENTS</code> is empty, the mode is missing/invalid, or
+the tool name is missing, use <code>AskUserQuestion</code> to collect
+what’s missing. Do NOT proceed with defaults.</li>
+</ul></li>
+<li><p><strong>Pre-flight checks</strong>:</p>
+<ul>
+<li>Verify a CLAUDE.md exists for the agent to read (project root
+preferred, else <code>~/.claude/CLAUDE.md</code>). If neither exists,
+abort and tell the user the agent has no source of truth for the
+conventions.</li>
+<li>For <code>audit</code> mode: verify the named tool actually exists
+in some form — at least one of
+<code>docs/tools/&lt;tool-name&gt;.md</code>, source code referring to
+the tool, or <code>~/.tool-agents/&lt;tool-name&gt;/</code>. Use
+<code>Glob</code>/<code>Grep</code> to check. If none of those is
+present, use <code>AskUserQuestion</code> to ask whether the user meant
+<code>scaffold</code> instead.</li>
+</ul></li>
+<li><p><strong>Gather scaffold inputs</strong> (scaffold mode only): Use
+<code>AskUserQuestion</code> to collect each missing input the subagent
+needs. Ask all four in a single AskUserQuestion call so the user fills
+them out in one pass:</p>
+<ul>
+<li><code>tool_description</code> — one-or-two-sentence summary of what
+the tool does.</li>
+<li><code>tool_command</code> — the exact CLI command users will
+run.</li>
+<li><code>llm_required</code> — does this tool talk to LLM providers?
+(<code>yes</code>/<code>no</code>). If yes, the agent will include the
+canonical names for all eight standard providers in the
+<code>.env</code> template.</li>
+<li><code>extra_config_vars</code> — any non-LLM configuration variables
+the tool needs (name + purpose for each); the user may answer
+“none”.</li>
+</ul></li>
+<li><p><strong>Dispatch the subagent</strong>: Launch the
+<code>tool-doc-config-architect</code> subagent in the foreground via
+the <code>Task</code> tool. Pass a single instruction block with all
+required inputs:</p>
+<pre><code>mode: &lt;scaffold|audit&gt;
+tool_name: &lt;name&gt;
+project_root: &lt;absolute path to $PWD&gt;
+tool_description: &lt;from step 3, scaffold only&gt;
+tool_command: &lt;from step 3, scaffold only&gt;
+llm_required: &lt;yes|no, scaffold only&gt;
+extra_config_vars:
+  - name: &lt;var name&gt;
+    purpose: &lt;one-line purpose&gt;
+  - ...</code></pre>
+<p>Wait for completion and capture the report.</p></li>
+<li><p><strong>Present the report to the user</strong>:</p>
+<ul>
+<li>Summarize: status, files written (scaffold) or findings count
+(audit), and whether <code>needs_user_decision: yes</code>.</li>
+<li>Show the full convention-compliance table from the report.</li>
+<li>List the “Decisions Needed From User” items.</li>
+</ul></li>
+<li><p><strong>Handle the CLAUDE.md update offer</strong>:</p>
+<ul>
+<li>If the report includes a “Recommended CLAUDE.md Tools Section
+Entry”, use <code>AskUserQuestion</code> to ask whether to append it now
+to the project’s CLAUDE.md.</li>
+<li>If the user agrees:
+<ul>
+<li>Read the project’s CLAUDE.md.</li>
+<li>Locate the <code>## Tools</code> section. If it exists, append the
+recommended entry to it.</li>
+<li>If it does not exist, create a new <code>## Tools</code> section at
+the end of the file (or at a position consistent with the file’s
+existing structure) and add the entry.</li>
+</ul></li>
+<li>If the user declines, leave CLAUDE.md untouched and remind them they
+can apply the entry manually later.</li>
+</ul></li>
+<li><p><strong>Handle the “Decisions Needed From User” items</strong>:
+For each item in that section of the report, use
+<code>AskUserQuestion</code> to capture the user’s choice. Apply trivial
+choices directly (e.g. renaming an env var in the just-written
+<code>.env</code> template via <code>Edit</code>). For choices that
+materially change scaffold inputs (e.g. “actually this tool DOES talk to
+LLMs”), re-invoke the subagent with the corrected inputs.</p></li>
+<li><p><strong>Final confirmation</strong>:</p>
+<ul>
+<li>For <code>scaffold</code>: run
+<code>ls -la ~/.tool-agents/&lt;tool-name&gt;/</code> and
+<code>ls -la docs/tools/&lt;tool-name&gt;.md</code> via
+<code>Bash</code> to confirm artifacts exist with correct modes. Show
+the output to the user.</li>
+<li>For <code>audit</code>: confirm no files were modified by checking
+<code>git status --porcelain</code> (the working tree should be
+unchanged from before the command ran).</li>
+</ul></li>
+</ol>
+<p></process></p>
+<p><success_criteria> - The mode and tool name were unambiguous before
+the subagent was dispatched. - For <code>scaffold</code>: all four
+scaffold inputs were collected; the subagent ran to
+<code>status: completed</code>;
+<code>docs/tools/&lt;tool-name&gt;.md</code> exists;
+<code>~/.tool-agents/&lt;tool-name&gt;/</code> exists with mode
+<code>0700</code> and contains <code>.env</code> with mode
+<code>0600</code>; the user has been offered (and either accepted or
+declined) the CLAUDE.md update. - For <code>audit</code>: the subagent
+ran to <code>status: completed</code>; all findings were presented to
+the user with severity classifications; the working tree is unchanged. -
+All “Decisions Needed From User” items have been resolved or explicitly
+deferred by the user. - No tool’s artifacts other than the named one
+were touched. </success_criteria></p>
+<p><verification> After the workflow completes, confirm by reading: -
+For <code>scaffold</code>:
+<code>ls -la ~/.tool-agents/&lt;tool-name&gt;/</code> shows the folder
+with mode <code>drwx------</code> (0700) and <code>.env</code> with mode
+<code>-rw-------</code> (0600).
+<code>docs/tools/&lt;tool-name&gt;.md</code> exists and contains the
+<code>&lt;toolName&gt;</code> block. The recommended CLAUDE.md entry was
+either applied (visible in <code>git diff CLAUDE.md</code>) or
+explicitly skipped per user choice. - For <code>audit</code>: a
+structured report was displayed, and <code>git status --porcelain</code>
+shows the working tree is in the same state as before the command was
+invoked. </verification></p>
+<output>
+<p>Files possibly created/modified by this command:</p>
+<p><strong>scaffold mode</strong>: -
+<code>&lt;project_root&gt;/docs/tools/&lt;tool-name&gt;.md</code>
+(created or updated by the subagent) -
+<code>~/.tool-agents/&lt;tool-name&gt;/.env</code> (created or updated
+by the subagent) - <code>~/.tool-agents/&lt;tool-name&gt;/</code>
+directory (created by the subagent if missing) -
+<code>&lt;project_root&gt;/CLAUDE.md</code> (modified by THIS command in
+step 6, only with explicit user consent)</p>
+<strong>audit mode</strong>: - No files modified. A report is presented
+in the conversation.
+</output>
+
+  </main>
+</body>
+</html>

@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Command — /team-workflow</title>
+<style>
+  :root {
+    /* base */
+    --bg: #fafafa;
+    --panel: #ffffff;
+    --ink: #1f2328;
+    --ink-soft: #57606a;
+    --accent: #0969da;
+    --accent-soft: #ddf4ff;
+    --rule: #d0d7de;
+    --code-bg: #f6f8fa;
+    --warn-bg: #fff8c5;
+    --warn-edge: #d4a72c;
+
+    /* phase-type palette (from team-workflow.html) */
+    --seq-edge:    #54aeff;
+    --seq-bg:      #ddf4ff;
+    --cond-edge:   #f7a352;
+    --cond-bg:     #fff1e5;
+    --par-edge:    #c297ff;
+    --par-bg:      #fcebff;
+    --review-edge: #4ac26b;
+    --review-bg:   #dafbe1;
+    --danger-edge: #ff8182;
+    --danger-bg:   #ffebe9;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+  /* layout: 2-column grid when TOC present, single column otherwise */
+  body { display: grid; grid-template-columns: 300px 1fr; min-height: 100vh; }
+  body.no-toc { display: block; max-width: 900px; margin: 0 auto; padding: 32px 40px 80px; }
+
+  /* sticky sidebar TOC */
+  nav.toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 24px 18px;
+    background: var(--panel);
+    border-right: 1px solid var(--rule);
+    font-size: 13px;
+  }
+  body.no-toc nav.toc { display: none; }
+  nav.toc h2 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    margin: 16px 0 8px;
+  }
+  nav.toc h2:first-child { margin-top: 0; }
+  nav.toc ul, nav.toc ol { list-style: none; padding-left: 0; margin: 0; }
+  nav.toc ul ul, nav.toc ol ol { padding-left: 14px; }
+  nav.toc a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink);
+    text-decoration: none;
+    padding: 5px 8px;
+    border-radius: 4px;
+    line-height: 1.35;
+  }
+  nav.toc a:hover { background: var(--accent-soft); color: var(--accent); }
+  nav.toc a.phase .num {
+    display: inline-block;
+    min-width: 22px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--seq-edge);
+    border-radius: 4px;
+    padding: 1px 4px;
+  }
+  nav.toc a.phase[data-type="conditional"] .num { background: var(--cond-edge); }
+  nav.toc a.phase[data-type="parallel"]    .num { background: var(--par-edge); }
+  nav.toc a.phase[data-type="review"]      .num { background: var(--review-edge); }
+
+  main { padding: 40px 56px 80px; max-width: 1080px; }
+  body.no-toc main { padding: 0; max-width: none; }
+
+  /* page header */
+  header.title { border-bottom: 2px solid var(--ink); padding-bottom: 16px; margin-bottom: 28px; }
+  header.title h1 { margin: 0 0 6px; font-size: 28px; }
+  header.title .meta { color: var(--ink-soft); font-size: 13px; }
+
+  /* command metadata banner */
+  section.cmd-meta {
+    background: var(--accent-soft);
+    border-left: 5px solid var(--accent);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 0 0 22px;
+    font-size: 13.5px;
+  }
+  section.cmd-meta dl { display: grid; grid-template-columns: 130px 1fr; gap: 4px 12px; margin: 0; }
+  section.cmd-meta dt { color: var(--ink-soft); font-weight: 600; }
+  section.cmd-meta dd { margin: 0; }
+  section.cmd-meta code { background: rgba(255,255,255,0.6); }
+  section.cmd-meta .tools-list { display: flex; flex-wrap: wrap; gap: 4px 6px; }
+  section.cmd-meta .tools-list code { font-size: 11.5px; padding: 1px 6px; }
+
+  /* top-note callout */
+  .top-note {
+    background: var(--warn-bg);
+    border-left: 4px solid var(--warn-edge);
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin: 0 0 28px;
+    font-size: 14px;
+  }
+
+  /* headings */
+  h1, h2, h3, h4 { line-height: 1.3; }
+  h1 { font-size: 26px; }
+  h2, h2.section {
+    font-size: 22px;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 6px;
+    margin: 40px 0 14px;
+  }
+  h3, h3.subsection { font-size: 17px; margin: 22px 0 8px; }
+  h4 { font-size: 15px; margin-top: 18px; color: var(--ink-soft); }
+
+  p { margin: 8px 0; }
+  ul, ol { margin: 8px 0 12px; padding-left: 22px; }
+  li { margin: 4px 0; }
+  li > ul, li > ol { margin: 4px 0; }
+  blockquote {
+    margin: 12px 0;
+    padding: 8px 16px;
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 4px;
+    color: #0550ae;
+  }
+
+  /* code */
+  code {
+    background: var(--code-bg);
+    border-radius: 3px;
+    padding: 1px 6px;
+    font: 13px/1.5 ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    color: #24292f;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 12px 14px;
+    overflow-x: auto;
+    font: 12.5px/1.5 ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    margin: 10px 0;
+  }
+  pre code { background: transparent; padding: 0; color: inherit; }
+
+  /* tables */
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13.5px; }
+  th, td { border: 1px solid var(--rule); padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--code-bg); font-weight: 600; }
+  table.artifacts code { white-space: nowrap; }
+
+  hr { border: 0; border-top: 1px solid var(--rule); margin: 26px 0; }
+
+  /* back link */
+  .back-link { display: inline-block; margin-bottom: 18px; font-size: 13px; color: var(--accent); text-decoration: none; }
+  .back-link:hover { text-decoration: underline; }
+
+  /* phase cards */
+  .phase {
+    border: 1px solid var(--rule);
+    border-left-width: 6px;
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 18px 0;
+    background: var(--panel);
+  }
+  .phase.seq    { border-left-color: var(--seq-edge);    background: linear-gradient(90deg, var(--seq-bg)    0%, var(--panel) 200px); }
+  .phase.cond   { border-left-color: var(--cond-edge);   background: linear-gradient(90deg, var(--cond-bg)   0%, var(--panel) 200px); }
+  .phase.par    { border-left-color: var(--par-edge);    background: linear-gradient(90deg, var(--par-bg)    0%, var(--panel) 200px); }
+  .phase.review { border-left-color: var(--review-edge); background: linear-gradient(90deg, var(--review-bg) 0%, var(--panel) 200px); }
+
+  .phase > h3 { margin: 0 0 6px; font-size: 18px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .phase > h3 .num {
+    display: inline-block;
+    min-width: 32px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    border-radius: 4px;
+    padding: 2px 8px;
+  }
+  .phase.seq    > h3 .num { background: var(--seq-edge); }
+  .phase.cond   > h3 .num { background: var(--cond-edge); }
+  .phase.par    > h3 .num { background: var(--par-edge); }
+  .phase.review > h3 .num { background: var(--review-edge); }
+
+  /* meta row chips */
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    margin: 8px 0 14px;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .meta-row .chip {
+    background: var(--code-bg);
+    border: 1px solid var(--rule);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+  }
+  .meta-row .chip strong { color: var(--ink); margin-right: 4px; font-weight: 600; }
+
+  /* pills */
+  .pill {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .pill.fg     { background: #ddf4ff; color: #0550ae; }
+  .pill.bg     { background: #fcebff; color: #6639ba; }
+  .pill.cond   { background: #fff1e5; color: #973c00; }
+  .pill.review { background: #dafbe1; color: #1a7f37; }
+  .pill.gate   { background: #ffebe9; color: #82071e; }
+
+  /* callouts */
+  .callout {
+    background: var(--code-bg);
+    border-left: 4px solid var(--accent);
+    padding: 10px 14px;
+    border-radius: 4px;
+    margin: 12px 0;
+    font-size: 13.5px;
+  }
+  .callout.warn { background: var(--warn-bg); border-left-color: var(--warn-edge); }
+  .callout.danger { background: var(--danger-bg); border-left-color: var(--danger-edge); }
+
+  /* flow diagram */
+  .flow {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 18px;
+    margin: 0 0 32px;
+    overflow-x: auto;
+  }
+  .flow h3 { margin: 0 0 14px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); }
+  .flow-row { display: flex; align-items: stretch; gap: 6px; min-width: max-content; }
+  .flow-step {
+    display: flex; flex-direction: column;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 10px 12px;
+    background: var(--panel);
+    min-width: 120px;
+    font-size: 12px;
+  }
+  .flow-step .num { font-weight: 700; font-size: 11px; color: var(--ink-soft); }
+  .flow-step .name { font-weight: 600; color: var(--ink); margin: 2px 0; }
+  .flow-step .agent { color: var(--ink-soft); font-family: ui-monospace, monospace; font-size: 10.5px; }
+  .flow-step.seq    { border-left: 4px solid var(--seq-edge); }
+  .flow-step.cond   { border-left: 4px solid var(--cond-edge); }
+  .flow-step.par    { border-left: 4px solid var(--par-edge); }
+  .flow-step.review { border-left: 4px solid var(--review-edge); }
+  .flow-arrow { display: flex; align-items: center; color: var(--ink-soft); font-size: 18px; padding: 0 2px; }
+
+  /* responsive */
+  @media (max-width: 900px) {
+    body { grid-template-columns: 1fr; }
+    nav.toc { position: relative; height: auto; border-right: 0; border-bottom: 1px solid var(--rule); }
+    main { padding: 24px; }
+  }
+</style>
+
+</head>
+<body class="">
+  <nav class="toc" id="TOC" role="doc-toc">
+<h2>Overview</h2>
+<a href="#objective">Objective</a>
+<a href="#context">Context</a>
+<a href="#pre-flight-checks">Pre-Flight Checks</a>
+<a href="#artifact-path-tracking">Artifact Path Tracking</a>
+<a href="#workflow-phases">Workflow Phases</a>
+<a href="#checkpoint-resume">Checkpoint & Resume</a>
+<a href="#post-workflow-summary">Post-Workflow Summary</a>
+<a href="#error-handling">Error Handling</a>
+<a href="#important-constraints">Important Constraints</a>
+<h2>Phases</h2>
+<a class="phase" data-type="conditional" href="#p1"><span class="num">1</span>Request Refiner</a>
+<a class="phase" data-type="conditional" href="#p2"><span class="num">2</span>Codebase Scanner
+(Conditional)</a>
+<a class="phase" data-type="conditional" href="#p3a"><span class="num">3a</span>Investigator
+(Conditional)</a>
+<a class="phase" data-type="conditional" href="#p3b"><span class="num">3b</span>Technical Deep Research (Conditional)</a>
+<a class="phase" data-type="sequential" href="#p4"><span class="num">4</span>Planner</a>
+<a class="phase" data-type="sequential" href="#p5"><span class="num">5</span>Designer</a>
+<a class="phase" data-type="parallel" href="#p6"><span class="num">6</span>Coders
+(Parallel Implementation)</a>
+<a class="phase" data-type="review" href="#p7"><span class="num">7</span>Code Reviewer</a>
+<a class="phase" data-type="review" href="#p8"><span class="num">8</span>Dependency Validator</a>
+<a class="phase" data-type="parallel" href="#p9"><span class="num">9</span>Test Builders (Parallel Test Implementation)</a>
+<a class="phase" data-type="review" href="#p10"><span class="num">10</span>Integration
+Verifier</a>
+  </nav>
+  <main>
+<a href="index.html" class="back-link">&larr; Back</a>
+<header class="title">
+  <h1>/team-workflow</h1>
+  <div class="meta">Source: <code>team-workflow-cmd/commands/team-workflow.md</code> &middot; Argument: <code>[request description]</code></div>
+</header>
+<section class="cmd-meta">
+  <dl>
+    <dt>Invocation</dt><dd><code>/team-workflow</code></dd>
+    <dt>Description</dt><dd>Orchestrate a multi-agent team to research, plan, design, implement, review, and test a development request</dd>
+    <dt>Argument hint</dt><dd><code>[request description]</code></dd>
+    <dt>Allowed tools</dt><dd><div class="tools-list"><code>Task</code><code>Read</code><code>Write</code><code>Edit</code><code>Bash(git:*)</code><code>Bash(date:*)</code><code>Bash(mkdir:*)</code><code>Bash(ls:*)</code><code>Bash(find:*)</code><code>Bash(rm:*)</code><code>Bash(npx:*)</code><code>Bash(npm:*)</code><code>Bash(pnpm:*)</code><code>Bash(yarn:*)</code><code>Bash(uv:*)</code><code>Glob</code><code>Grep</code><code>WebSearch</code><code>WebFetch</code><code>AskUserQuestion</code><code>mcp__serena__get_symbols_overview</code><code>mcp__serena__find_symbol</code><code>mcp__serena__find_referencing_symbols</code><code>mcp__serena__search_for_pattern</code><code>mcp__serena__list_dir</code><code>mcp__serena__find_file</code><code>mcp__serena__replace_symbol_body</code><code>mcp__serena__insert_after_symbol</code><code>mcp__serena__insert_before_symbol</code><code>mcp__serena__rename_symbol</code><code>mcp__serena__onboarding</code><code>mcp__serena__get_current_config</code><code>mcp__serena__read_memory</code><code>mcp__serena__write_memory</code><code>mcp__serena__list_memories</code><code>mcp__cclsp__get_diagnostics</code><code>mcp__cclsp__find_references</code><code>mcp__cclsp__find_definition</code><code>mcp__cclsp__find_workspace_symbols</code><code>mcp__cclsp__find_implementation</code><code>mcp__cclsp__get_hover</code><code>mcp__cclsp__get_incoming_calls</code><code>mcp__cclsp__get_outgoing_calls</code><code>mcp__cclsp__prepare_call_hierarchy</code><code>mcp__plugin_context7_context7__resolve-library-id</code><code>mcp__plugin_context7_context7__query-docs</code></div></dd>
+    <dt>Source</dt><dd><code>team-workflow-cmd/commands/team-workflow.md</code></dd>
+  </dl>
+</section>
+
+<h1 id="team-workflow-orchestrator">Team Workflow Orchestrator</h1>
+<h2 id="objective">Objective</h2>
+<div class="top-note">
+<p>Orchestrate a structured, multi-agent development workflow to fulfill
+the following request:</p>
+</div>
+<p><request> $ARGUMENTS </request></p>
+<p>This command coordinates a team of specialized agents that execute
+sequentially and in parallel to take a request from investigation
+through implementation and testing.</p>
+<h2 id="context">Context</h2>
+<ul>
+<li>Project root: $PWD</li>
+<li>Timestamp: !<code>date "+%Y-%m-%d %H:%M:%S"</code></li>
+</ul>
+<h2 id="pre-flight-checks">Pre-Flight Checks</h2>
+<p>Before starting the workflow:</p>
+<ol type="1">
+<li><strong>Validate request</strong>: If <code>$ARGUMENTS</code> is
+empty or unclear, use AskUserQuestion to ask the user to describe their
+request in detail.</li>
+<li><strong>Read project CLAUDE.md</strong>: Read the project’s
+CLAUDE.md and the global ~/.claude/CLAUDE.md to understand registration
+and documentation requirements.</li>
+<li><strong>Check existing docs</strong>: Look for
+<code>docs/design/project-design.md</code> and
+<code>docs/reference/</code> to understand current project state.</li>
+<li><strong>Ensure directories exist</strong>: Create
+<code>docs/design/</code>, <code>docs/reference/</code>, and
+<code>test_scripts/</code> directories if they don’t exist.</li>
+<li><strong>Serena onboarding</strong>: Call
+<code>mcp__serena__list_memories</code>. If it returns no memories
+(onboarding never ran), call <code>mcp__serena__onboarding</code> to
+prime Serena for the project. If the Serena MCP is unavailable or either
+call errors, note it and continue — downstream agents have
+Glob/Grep/Read fallbacks; Serena is an accelerator, not a
+prerequisite.</li>
+<li><strong>Clean working tree check</strong>: Run
+<code>git status --porcelain</code>. If there are uncommitted changes,
+use AskUserQuestion to warn: “There are uncommitted changes in the
+working tree. It’s recommended to commit or stash them before running
+this workflow so its changes can be cleanly identified and reverted if
+needed. Proceed anyway?” If the user declines, abort the workflow.</li>
+</ol>
+<p><strong>All pre-flight checks must complete before launching Phase
+1.</strong> Do not launch any phase agent until steps 1-6 above are
+finished.</p>
+<h2 id="artifact-path-tracking">Artifact Path Tracking</h2>
+<p>As each phase completes, the orchestrator must capture the exact file
+paths of artifacts produced and pass them explicitly to downstream
+phases. Never rely on agents finding “the most recent” file — always
+provide the exact path.</p>
+<p>Track these artifacts as they are produced: -
+<code>WORKFLOW_SLUG</code> — set after Phase 1: a short, lowercase,
+hyphenated slug derived from the refined request objective
+(e.g. <code>oauth2-auth</code>, <code>user-mgmt-api</code>). Every
+artifact filename in this workflow that contains a slug MUST use this
+exact value, so all artifacts of one request are linkable. -
+<code>REFINED_REQUEST_FILE</code> — set after Phase 1 -
+<code>CODEBASE_SCAN_FILE</code> — set after Phase 2 (or empty if
+skipped) - <code>INVESTIGATION_FILE</code> — set after Phase 3a (or
+empty if skipped by triage) - <code>TECHNICAL_RESEARCH_FILES</code> —
+list of paths, set after Phase 3b (or empty if no research needed) -
+<code>PLAN_FILE</code> — set after Phase 4 -
+<code>DESIGN_SPEC_FILE</code> — set after Phase 5: the per-request
+design file (<code>docs/design/design-NNN-[WORKFLOW SLUG].md</code>) -
+<code>DESIGN_FILE</code> — always the absolute path
+<code>&lt;project root&gt;/docs/design/project-design.md</code> (the
+living project design document the design-builder updates) -
+<code>FILES_TOUCHED_UNION</code> — set after the Phase 6 post-coding
+conflict check: the verified union of all coder agents’ “Files touched”
+lists (plus any files the Merge Resolver touched) -
+<code>REVIEW_REPORT_FILE</code> — set after Phase 7: the code-review
+report (<code>docs/reference/code-review-[WORKFLOW SLUG].md</code>) -
+<code>DEPENDENCY_VALIDATION_FILE</code> — set after Phase 8 (the
+validator always writes a report — when no package manager is detected
+its status is <code>skipped_no_manifest</code>) -
+<code>TEST_BUILD_REPORT_FILES</code> — list of per-agent report paths,
+set after Phase 9 - <code>INTEGRATION_REPORT_FILE</code> — set after
+Phase 10</p>
+<p>When constructing agent instructions for subsequent phases, replace
+placeholders with the actual paths: - <code>[WORKFLOW SLUG]</code> →
+value of <code>WORKFLOW_SLUG</code> -
+<code>[REFINED REQUEST FILE]</code> → value of
+<code>REFINED_REQUEST_FILE</code> - <code>[CODEBASE SCAN FILE]</code> →
+value of <code>CODEBASE_SCAN_FILE</code> -
+<code>[INVESTIGATION FILE]</code> → value of
+<code>INVESTIGATION_FILE</code> -
+<code>[TECHNICAL RESEARCH FILES]</code> → list of
+<code>TECHNICAL_RESEARCH_FILES</code> paths (or “none”) -
+<code>[PLAN FILE]</code> → value of <code>PLAN_FILE</code> -
+<code>[DESIGN SPEC FILE]</code> → value of <code>DESIGN_SPEC_FILE</code>
+- <code>[DESIGN FILE]</code> → value of <code>DESIGN_FILE</code> -
+<code>[FILES TOUCHED UNION]</code> → the
+<code>FILES_TOUCHED_UNION</code> list -
+<code>[REVIEW REPORT FILE]</code> → value of
+<code>REVIEW_REPORT_FILE</code> -
+<code>[DEPENDENCY VALIDATION FILE]</code> → value of
+<code>DEPENDENCY_VALIDATION_FILE</code> (or “none”) -
+<code>[TEST BUILD REPORT FILES]</code> → list of
+<code>TEST_BUILD_REPORT_FILES</code> paths (or “none”)</p>
+<p>Always pass artifact paths as <strong>absolute paths</strong> when
+constructing agent instructions — agents may resolve relative paths
+against a different working directory.</p>
+<p>Additionally, pass the original raw request to every downstream agent
+as a fallback against interpretation drift introduced by refinement:
+include the line
+<code>The original user request was: "[INSERT RAW REQUEST HERE]"</code>
+(replacing the placeholder with <code>$ARGUMENTS</code>) in each phase
+prompt that reads the refined request.</p>
+<h2 id="workflow-phases">Workflow Phases</h2>
+<p>Execute the following phases in order. Each phase uses the Task tool
+to launch specialized agents.</p>
+<hr />
+<section id="p1" class="phase cond" data-phase-type="cond"><h3><span class="num">Phase 1</span>Request Refiner <span class="pill fg">foreground</span><span class="pill cond">conditional</span></h3><div class="meta-row"><span class="chip"><strong>Agent</strong><code>request-refiner</code></span></div>
+<p>Launch a <strong>foreground</strong> agent using the
+<code>request-refiner</code> agent to analyze, clarify, and refine the
+raw request into a structured, unambiguous specification that all
+downstream phases will consume.</p>
+
+<pre><code>Refine the following raw request into a structured specification:
+
+&lt;raw-request&gt;
+[INSERT RAW REQUEST HERE]
+&lt;/raw-request&gt;
+
+This specification will drive a full development workflow (investigation, planning, design, implementation, review, and testing), so ensure the refinement is thorough and development-oriented.
+
+Save the refined specification under `&lt;absolute path to project root&gt;/docs/reference/` (create the directory if missing), following your `refined-request-&lt;slug&gt;.md` naming convention — do not resolve the directory relative to your own working directory. Report the file&#39;s absolute path and the slug.
+
+You run in an isolated subagent context: AskUserQuestion cannot reach the user from here. Do not block on clarifications — make reasonable, documented assumptions (Assumptions section) and record every ambiguity that genuinely needs the user&#39;s decision in the &quot;Open Questions&quot; section with a recommended default. The orchestrator resolves them with the user immediately after you finish.</code></pre>
+<p><strong>Wait for completion before proceeding.</strong></p>
+<p>After Phase 1 completes: 1. Read the refined request file path and
+store it as <code>REFINED_REQUEST_FILE</code>. 2. Set
+<code>WORKFLOW_SLUG</code> to the slug the request-refiner reported (its
+<code>Slug:</code> line — the same slug embedded in the refined-request
+filename). Only if the agent failed to report one, derive it yourself
+from the refined request objective — short, lowercase, hyphenated
+(e.g. <code>oauth2-auth</code>, <code>user-mgmt-api</code>). Use this
+exact slug in every slug-bearing artifact filename for the rest of the
+workflow. 3. <strong>Open-questions gate (mandatory):</strong> read the
+refiner’s reported open-questions count (and the refined request’s “Open
+Questions” section). If greater than zero, resolve each question with
+the user via AskUserQuestion (offering the refiner’s recommended default
+as the first option), append the resolutions to the refined-request
+file’s “Open Questions” section, and only then proceed to triage. The
+refiner runs in an isolated subagent context and cannot reach the user
+itself — this gate is where its unresolved ambiguities get answered.</p>
+<p><strong>Phase triage</strong> — before launching Phase 2, decide
+which conditional phases this request actually needs, using the skip
+criteria from the project CLAUDE.md pipeline rules:</p>
+<ol type="1">
+<li><strong>Phase 2 (Codebase Scanner)</strong> — skip if the project is
+greenfield (no source files outside <code>node_modules/</code>,
+<code>.git/</code>, <code>docs/</code>). <strong>Reuse instead of
+re-scanning</strong> if
+<code>docs/reference/codebase-scan-[WORKFLOW SLUG].md</code> already
+exists, its frontmatter <code>last_scanned_commit</code> matches the
+current <code>git rev-parse HEAD</code>, AND its
+<code>scanned_for_request</code> matches <code>WORKFLOW_SLUG</code> (the
+scanner writes the request slug in that field, not the filename) — in
+that case set <code>CODEBASE_SCAN_FILE</code> to the existing file and
+skip the scanner.</li>
+<li><strong>Phase 3a (Investigator)</strong> — skip when ANY of these
+hold: a single, obvious approach already used in the project satisfies
+the request; the project’s CLAUDE.md,
+<code>docs/design/project-design.md</code>, or an existing tool
+documentation already prescribes the approach; the work is a localized
+change with a self-evident strategy; a still-valid investigation
+artifact from a previous run covers this request (reuse it as
+<code>INVESTIGATION_FILE</code>).</li>
+<li><strong>Phase 3b (Technical Research)</strong> — normally driven by
+Phase 3a’s “Research needed” flag. Exception: if the request directly
+names a specific library/API/SDK and asks for usage or integration
+guidance, skip Phase 3a and dispatch Phase 3b directly for that
+topic.</li>
+</ol>
+<p><strong>Explicit-skip rule</strong>: every time triage skips (or
+reuses an artifact for) a phase, announce it to the user in one sentence
+with the reason (e.g., “Skipping investigation — project-design.md
+already prescribes the approach.”) so the user can override. When a
+phase is skipped, set its artifact variable to empty, replace its
+placeholder in downstream prompts with
+<code>none (skipped: &lt;reason&gt;)</code>, and drop the corresponding
+“Read the …” step from those prompts.</p>
+<hr />
+</section>
+
+<section id="p2" class="phase cond" data-phase-type="cond"><h3><span class="num">Phase 2</span>Codebase Scanner
+(Conditional) <span class="pill fg">foreground</span><span class="pill cond">conditional</span></h3><div class="meta-row"><span class="chip"><strong>Agent</strong><code>codebase-scanner</code></span></div>
+<p>This phase runs <strong>only if triage marked it required</strong>
+(see “Phase triage” after Phase 1): the project must have source code
+files (i.e., not purely greenfield), and no reusable scan may exist for
+the current <code>WORKFLOW_SLUG</code> and <code>HEAD</code>. If triage
+decided to reuse an existing scan, <code>CODEBASE_SCAN_FILE</code> is
+already set — skip this phase. If the project is greenfield, skip this
+phase and proceed with <code>CODEBASE_SCAN_FILE</code> empty.</p>
+<p>Launch a <strong>foreground</strong> agent using the
+<code>codebase-scanner</code> agent. The scanner produces a structured
+markdown overview with YAML frontmatter (language, package_manager,
+build_command, test_command, lint_command, entry_points,
+last_scanned_commit) that downstream phases — Planner, Designer,
+Integration Verifier — can read directly without re-detecting these
+fields themselves.</p>
+
+<pre><code>Scan this codebase and produce a structured overview narrowed to the areas relevant to the request.
+
+Inputs:
+- request_file: [REFINED REQUEST FILE]
+- output_path: &lt;absolute path to project root&gt;/docs/reference/codebase-scan-[WORKFLOW SLUG].md
+
+Apply request-driven narrowing (Step 4 of your workflow) so the Integration Points section is populated.</code></pre>
+<p><strong>Wait for completion before proceeding.</strong></p>
+<p>After Phase 2 completes, set <code>CODEBASE_SCAN_FILE</code> to the
+output path the scanner reported.</p>
+<p><strong>Duplication check (mandatory after every scan)</strong> —
+before launching Phase 3a, read the scan’s “Module Map” and “Integration
+Points” sections and classify the requested feature:</p>
+<ol type="1">
+<li><strong>Already implemented</strong> → STOP. Use AskUserQuestion to
+ask the user whether to (a) extend the existing implementation, (b)
+replace it, or (c) abandon the request as already done. If (c), end the
+workflow; if (a) or (b), record the decision and pass it explicitly to
+the Investigator, Planner, and Designer prompts.</li>
+<li><strong>Partially implemented</strong> → record a directive for the
+Planner: the work MUST be scoped as an extension of the existing module,
+citing the file/symbol locations from the scan — NOT as a parallel
+implementation. Include this directive verbatim in the Phase 4
+instructions.</li>
+<li><strong>New Integration Point flagged</strong> → record a directive
+for the Designer: the design must explain where the new module lands,
+how it interacts with the existing surface, and which conventions it
+adopts from the scan’s “Conventions” section. Include this directive
+verbatim in the Phase 5 instructions.</li>
+</ol>
+<hr />
+</section>
+
+<section id="p3a" class="phase cond" data-phase-type="cond"><h3><span class="num">Phase 3a</span>Investigator
+(Conditional) <span class="pill fg">foreground</span><span class="pill cond">conditional</span></h3><div class="meta-row"><span class="chip"><strong>Agent</strong><code>investigator</code></span></div>
+<p>This phase runs <strong>only if triage marked it required</strong>
+(see “Phase triage” after Phase 1). If triage skipped it, proceed to
+Phase 3b (if triage dispatched direct research) or Phase 4.</p>
+<p>Launch a <strong>foreground</strong> agent using the
+<code>investigator</code> agent to research available approaches,
+recommend the best fit, and identify any topics requiring deeper
+technical research.</p>
+
+<pre><code>Investigate available approaches and solutions for the following request.
+
+Save the investigation document to `&lt;absolute path to project root&gt;/docs/reference/investigation-[WORKFLOW SLUG].md` (use this path verbatim).
+
+Read the refined request specification at `[REFINED REQUEST FILE]` to understand the full scope, requirements, and constraints.
+
+If a codebase scan exists at `[CODEBASE SCAN FILE]`, read it to understand the current architecture, technology stack, and conventions. Focus your research on approaches compatible with the existing codebase.
+
+This investigation will feed into planning, design, and implementation phases, so ensure the recommendation is specific and actionable.
+
+IMPORTANT: In the &quot;Technical Research Guidance&quot; section of your output, assess whether any specific technologies, libraries, or patterns from your recommendation need deeper technical research before the team can proceed to planning. Be selective — only flag topics where the investigation found insufficient detail for confident implementation.</code></pre>
+<p><strong>Wait for completion before proceeding.</strong></p>
+<p>After Phase 3a completes: 1. Read the investigation file and store
+its path as <code>INVESTIGATION_FILE</code> 2. Locate the “Technical
+Research Guidance” section in the investigation document 3. Check
+whether “Research needed” is “Yes” or “No”</p>
+<hr />
+</section>
+
+<section id="p3b" class="phase cond" data-phase-type="cond"><h3><span class="num">Phase 3b</span>Technical Deep Research (Conditional) <span class="pill cond">conditional</span></h3><div class="meta-row"><span class="chip"><strong>Agent</strong><code>technical-researcher</code> (one
+per topic)</span></div>
+<p>This phase runs <strong>only if the investigator flagged topics in
+the “Technical Research Guidance” section</strong> (i.e., “Research
+needed: Yes”), OR if triage dispatched direct research because the
+request names a specific library/API/SDK and asks for usage guidance (in
+that case derive the topic, focus areas, and depth from the refined
+request instead of an investigation document). If “Research needed: No”
+and triage dispatched nothing, skip this phase and proceed directly to
+Phase 4.</p>
+<p>For each topic listed in the guidance section, launch a
+<code>technical-researcher</code> agent. If multiple topics are listed
+and they are independent, launch them in <strong>parallel</strong> using
+<code>run_in_background: true</code>.</p>
+<p> (adapt per
+topic):</p>
+<pre><code>You are conducting a deep technical research dive on a specific topic identified during an investigation phase.
+
+**Context**: Read the investigation document at `[INVESTIGATION FILE]` to understand the broader context and recommendation. Your research supports the implementation of this recommendation.
+(Omit the Context line above when triage dispatched direct research — no investigation document exists in that case; the topic derives from the refined request instead.)
+
+Inputs:
+- topic: [TOPIC NAME from the guidance section&#39;s Name field, or derived from the refined request on direct dispatch]
+- why_needed: [WHY from the guidance section, or from the refined request on direct dispatch]
+- focus_areas: [FOCUS from the guidance section, or from the refined request on direct dispatch]
+- depth_level: [DEPTH from the guidance section, or your judgment on direct dispatch]
+- investigation_file: [INVESTIGATION FILE]   (omit this line on direct dispatch)
+- output_path: &lt;absolute path to project root&gt;/docs/research/[topic-slug].md
+  (derive [topic-slug] from the topic by lowercasing and replacing spaces/underscores with hyphens)
+
+Produce comprehensive technical documentation following your standard output format and save it to the output_path above.
+
+Ensure your documentation includes:
+- Practical code examples relevant to the focus areas
+- Best practices and common pitfalls
+- Any findings that might affect the approach recommended in the investigation</code></pre>
+<p><strong>Wait for all technical research agents to
+complete.</strong></p>
+<p>After Phase 3b completes, collect all research file paths into
+<code>TECHNICAL_RESEARCH_FILES</code>.</p>
+<hr />
+</section>
+
+<section id="p4" class="phase seq" data-phase-type="seq"><h3><span class="num">Phase 4</span>Planner <span class="pill fg">foreground</span></h3><div class="meta-row"><span class="chip"><strong>Agent</strong><code>plan-builder</code></span></div>
+<p>Launch a <strong>foreground</strong> agent using the
+<code>plan-builder</code> agent to create the implementation plan. The
+plan is a Claude-executable prompt — dependency-ordered atomic steps
+with per-step verification — and carries YAML frontmatter
+(<code>status</code>, <code>open_questions</code>,
+<code>files_to_create</code>, <code>files_to_modify</code>,
+<code>implementation_units</code>) that this orchestrator and the coder
+fan-out parse directly.</p>
+
+<pre><code>Create the implementation plan for this workflow.
+
+Inputs:
+- request_file: [REFINED REQUEST FILE]
+- investigation_file: [INVESTIGATION FILE]   (omit this line if Phase 3a was skipped)
+- research_files: [TECHNICAL RESEARCH FILES]   (omit this line if Phase 3b produced nothing)
+- codebase_scan_file: [CODEBASE SCAN FILE]   (omit this line if Phase 2 was skipped)
+- design_file: &lt;absolute path to project root&gt;/docs/design/project-design.md   (omit if it does not exist)
+- output_path: &lt;absolute path to project root&gt;/docs/design/plan-NNN-[WORKFLOW SLUG].md
+  (derive NNN as the next sequential plan number)
+- duplication_directive: [DIRECTIVE FROM THE PHASE 2 DUPLICATION CHECK]   (omit if none was recorded)
+- original_request: &quot;[INSERT RAW REQUEST HERE]&quot;
+
+Also review the plan against the global and project CLAUDE.md instructions and the project&#39;s existing architecture before writing it, and update docs/design/project-functions.md with any new functional requirements.</code></pre>
+<p><strong>Wait for completion before proceeding.</strong></p>
+<p>After Phase 4 completes: 1. Read the plan file path the agent
+reported and store it as <code>PLAN_FILE</code>. 2. If the agent
+reported status <code>blocked_on_inputs</code>, stop and resolve the
+missing input (re-run the producing phase) before retrying — never
+proceed with a partial plan. 3. <strong>Open-questions gate
+(mandatory):</strong> read the plan’s YAML frontmatter
+<code>open_questions</code> count. If greater than zero, read the “Open
+Questions” section and use AskUserQuestion to resolve each entry with
+the user (the plan includes a recommended default per question) BEFORE
+launching Phase 5. Record the answers, append them to the plan’s “Open
+Questions” section as resolutions, and include them explicitly in the
+Designer’s instructions. Do not proceed to design with unresolved open
+questions. 4. If the agent flagged a scan-commit mismatch or an
+investigation conflict, surface it to the user before continuing.</p>
+<hr />
+</section>
+
+<section id="p5" class="phase seq" data-phase-type="seq"><h3><span class="num">Phase 5</span>Designer <span class="pill fg">foreground</span><span class="pill gate">user gate</span></h3><div class="meta-row"><span class="chip"><strong>Agent</strong><code>design-builder</code></span></div>
+<p>Launch a <strong>foreground</strong> agent using the
+<code>design-builder</code> agent to create the technical design. The
+design file carries YAML frontmatter (<code>status</code>,
+<code>implementation_units</code> with per-unit files and interface
+contracts, <code>files_to_create</code>, <code>files_to_modify</code>,
+<code>units_changed_from_plan</code>) that Phase 6 parses directly for
+the coder fan-out. The agent also updates the living
+<code>docs/design/project-design.md</code> with a dated,
+provenance-linked section.</p>
+
+<pre><code>Create the technical design for this workflow.
+
+Inputs:
+- request_file: [REFINED REQUEST FILE]
+- plan_file: [PLAN FILE]
+- investigation_file: [INVESTIGATION FILE]   (omit this line if Phase 3a was skipped)
+- research_files: [TECHNICAL RESEARCH FILES]   (omit this line if Phase 3b produced nothing)
+- codebase_scan_file: [CODEBASE SCAN FILE]   (omit this line if Phase 2 was skipped)
+- project_design_file: [DESIGN FILE]
+- output_path: &lt;absolute path to project root&gt;/docs/design/design-NNN-[WORKFLOW SLUG].md
+  (use the same NNN as the plan file, so plan and design pair up)
+- integration_directive: [DIRECTIVE FROM THE PHASE 2 DUPLICATION CHECK]   (omit if none was recorded)
+- resolved_open_questions: [ANSWERS RECORDED AT THE PHASE 4 OPEN-QUESTIONS GATE]   (omit if there were none)
+- original_request: &quot;[INSERT RAW REQUEST HERE]&quot;</code></pre>
+<p><strong>Wait for completion before proceeding.</strong></p>
+<p>After Phase 5 completes: 1. Store the design file path the agent
+reported as <code>DESIGN_SPEC_FILE</code>. 2. If the agent reported
+status <code>blocked_on_inputs</code>, stop and resolve the missing
+input (re-run the producing phase) before retrying. 3. If the agent
+flagged conflicts with the plan or investigation, surface them to the
+user before continuing.</p>
+<p>Then ask the user to review the design before proceeding to
+implementation. Use AskUserQuestion to present a summary of the design —
+including every entry the agent listed under “Decisions Requiring User
+Review” — and ask: - “The technical design is ready. Should I proceed
+with implementation, or do you want to review and adjust the design
+first?”</p>
+<hr />
+</section>
+
+<section id="p6" class="phase par" data-phase-type="par"><h3><span class="num">Phase 6</span>Coders
+(Parallel Implementation) <span class="pill bg">parallel · background</span></h3><div class="meta-row"><span class="chip"><strong>Agent</strong><code>general-purpose</code> (multiple
+instances)</span></div>
+<p>Identify the independent implementation units and launch
+<strong>parallel</strong> agents. Read the
+<code>implementation_units</code> frontmatter of the design at
+<code>[DESIGN SPEC FILE]</code> — the design-builder started from the
+plan’s units and adjusted them where the architecture demanded (its
+<code>units_changed_from_plan</code> flag tells you whether they differ
+from the plan’s partition), so the design’s units are authoritative.
+Re-verify that they still have pairwise-disjoint file sets before
+launching.</p>
+
+<pre><code>You are a developer implementing a specific part of the design. Use Serena semantic tools for code modifications when working with existing files.
+
+The original user request was: &quot;[INSERT RAW REQUEST HERE]&quot;
+
+Your assigned implementation unit (from the design&#39;s `implementation_units` frontmatter):
+- name: [UNIT NAME]
+- plan_steps: [PLAN STEP NUMBERS FOR THIS UNIT]
+- files you own: [UNIT FILE LIST]
+- exposes / consumes: [UNIT CONTRACT NAMES]
+
+**File ownership (hard rule):** you may create or modify ONLY the files in your unit&#39;s file list above. Other files are owned by parallel agents or are out of scope. If completing a step seems to require touching any other file, STOP that step and record it in your final report under a section titled &quot;Blocked — out of ownership&quot; instead of writing the change. Exception: do NOT edit `Issues - Pending Items.md` directly either (parallel agents would conflict) — list any deviation-log entries the plan&#39;s rules would send there in your final report under &quot;Deviations &amp; deferred items&quot;; the orchestrator records them after the phase.
+
+Steps:
+1. Read the refined request specification at `[REFINED REQUEST FILE]` to understand the full scope and acceptance criteria
+2. Read the technical design at `[DESIGN SPEC FILE]` — your unit&#39;s section defines the files you own and the interface contracts you expose and consume; the &quot;API &amp; Interface Contracts&quot; section is the single source of truth for shared signatures
+3. Read the plan at `[PLAN FILE]` and execute exactly the steps listed in your unit&#39;s plan_steps, in dependency order. Each step defines its files, action, a verify command, and a done condition — run the step&#39;s verify command after completing it and do not move on until it passes. Follow the plan&#39;s &quot;Deviation Rules for Executors&quot; section for anything you discover mid-step (subject to the file-ownership rule above)
+4. If a codebase scan exists at `[CODEBASE SCAN FILE]`, read it to understand existing code patterns and conventions before implementing
+5. For modifications to existing files:
+   a. Use `mcp__serena__find_symbol` with `include_body: true` to read the current implementation of symbols you need to modify
+   b. Use `mcp__serena__replace_symbol_body` to modify existing symbols
+   c. Use `mcp__serena__insert_after_symbol` or `mcp__serena__insert_before_symbol` to add new code
+   d. Use `mcp__serena__find_referencing_symbols` to find and update all references when changing interfaces
+   e. For new files, use the Write tool but ensure the code follows patterns from the codebase scan
+6. Follow strictly:
+   - The interface contracts defined in the design
+   - The project&#39;s code style and patterns
+   - TypeScript for all tools (per project CLAUDE.md)
+   - No fallback values for configuration settings - raise exceptions
+   - FastAPI for Python REST APIs (if applicable)
+   - Database naming conventions: singular table names
+7. Before adding ANY new runtime dependency to a manifest (package.json, pyproject.toml, etc.), apply the dependency-vetting procedure from the project CLAUDE.md &lt;dependency-vetting&gt; section: identify the latest stable major, check it for security advisories, and pin a caret range against a verified-clean version. Do NOT write the vetting-log entry into `Issues - Pending Items.md` yourself (file-ownership rule above) — instead, list each vetted dependency (package, pinned version, vetted-on date) in your final report under a section titled &quot;Dependency vetting log&quot;; the orchestrator appends them to the file after this phase. Never copy a dependency version from a reference implementation without re-verifying it.
+8. After implementation, verify:
+   - Use `mcp__cclsp__get_diagnostics` on modified files to check for type errors
+   - Ensure no broken references by checking symbols you changed with `mcp__serena__find_referencing_symbols`
+9. If you created a new tool, do NOT scaffold its documentation file (docs/tools/&lt;tool-name&gt;.md) or its ~/.tool-agents/&lt;tool-name&gt;/ config folder by hand — the tool-doc-config-architect agent owns that specification. Instead, list each new tool in your final report under an explicit section titled &quot;New tools created&quot;, giving for each: `tool_name` (lowercase-with-hyphens), a one-or-two-sentence capability description, `tool_command` (the exact CLI command users run), `llm_required` (yes/no — whether the tool talks to LLM providers), and any extra non-LLM config vars (name + purpose). The orchestrator passes these fields verbatim to the scaffolding agent after this phase — omitting `tool_command` or `llm_required` makes that dispatch fail
+10. End your final report with an explicit section titled &quot;Files touched&quot; listing the path of EVERY file you created or modified (including documentation files). The orchestrator uses this list for conflict detection — omitting a file is a defect.</code></pre>
+<p>If only one implementation unit is identified, launch it as a
+<strong>foreground</strong> agent instead of a background task.
+Otherwise, launch as many parallel agents as there are independent
+units. Use <code>run_in_background: true</code> for all parallel agents
+but track their completion.</p>
+<p><strong>Important</strong>: Before launching parallel agents, verify
+that the implementation units are truly independent — no two agents
+should modify the same file. If the design has overlapping units, either
+serialize those units or merge them into a single agent.</p>
+<p><strong>Wait for all coding agents to complete before
+proceeding.</strong></p>
+<p><strong>Post-coding conflict check</strong>: After all agents
+complete, check for file conflicts: 1. Collect each agent’s “Files
+touched” list from its final report. If an agent failed to report one,
+treat that as a defect: derive its list by asking the agent (if still
+reachable) or flag it for the Merge Resolver. 2. Intersect the per-agent
+lists pairwise — any file appearing in two or more lists was modified by
+multiple agents and needs reconciliation (git cannot tell you this; only
+the per-agent lists can). 3. Run <code>git status --porcelain</code> and
+take every changed AND untracked path (do NOT use
+<code>git diff --name-only</code> — it omits newly created files, which
+are untracked, so created-file work would look missing and unattributed
+new files would escape detection). Compare this list against the union
+of the per-agent lists, then cross-reference with the design document.
+Before comparing, exclude the <strong>workflow-owned artifacts</strong>
+— files this workflow’s orchestrator and phase agents legitimately
+modify outside any coder’s list: everything under
+<code>docs/reference/</code> (phase artifacts, reports,
+<code>workflow-checkpoint.json</code>), everything under
+<code>docs/design/</code> (plan, design, <code>project-design.md</code>,
+<code>project-functions.md</code>),
+<code>Issues - Pending Items.md</code>, everything under
+<code>prompts/</code>, and the project <code>CLAUDE.md</code>
+(Tools-section entries). These are expected and need no investigation.
+Then: - Files in git’s list (changed or untracked) but in no agent’s
+list (after the exclusion) → unattributed changes; investigate before
+proceeding. - Design units with no corresponding modified files → work
+was missed; re-dispatch that unit. 4. If any file was modified by more
+than one agent, launch a <strong>foreground</strong> “Merge Resolver”
+agent to reconcile the changes: - Read both versions of the conflicting
+file - Merge the changes preserving both agents’ contributions - Verify
+the merged result compiles using
+<code>mcp__cclsp__get_diagnostics</code> - Use
+<code>mcp__serena__find_referencing_symbols</code> to verify no broken
+references 5. Store the verified union of all per-agent “Files touched”
+lists (plus any files the Merge Resolver touched) as
+<code>FILES_TOUCHED_UNION</code> — Phase 7 receives it as the
+authoritative review list. 6. <strong>Tool scaffolding</strong>: collect
+every entry from the coders’ “New tools created” sections. For each new
+tool, launch a <strong>foreground</strong>
+<code>tool-doc-config-architect</code> agent with its full scaffold
+input contract: <code>mode: scaffold</code>, <code>tool_name</code>,
+<code>project_root</code> (absolute project root),
+<code>tool_description</code>, <code>tool_command</code>,
+<code>llm_required</code>, and <code>extra_config_vars</code> — taking
+the last four from the coder’s report entry. If a coder’s entry is
+missing <code>tool_command</code> or <code>llm_required</code>,
+determine them yourself by reading the tool’s entry point before
+dispatching (the architect hard-fails on missing required fields). Then
+add the concise entry it recommends to the “Tools” section of the
+project’s CLAUDE.md. Add only the <strong>in-repo</strong> files it
+touched (e.g. <code>docs/tools/&lt;tool-name&gt;.md</code>) to
+<code>FILES_TOUCHED_UNION</code> — its
+<code>~/.tool-agents/&lt;tool-name&gt;/</code> artifacts live outside
+the repository, never appear in <code>git diff</code>, and must not
+enter the union (they would trip Phase 7’s cross-check as phantom
+discrepancies). Skip this step if no new tools were reported. 7.
+<strong>Deviation log, vetting log &amp; ownership blocks</strong>:
+append every entry from the coders’ “Deviations &amp; deferred items”
+sections to <code>Issues - Pending Items.md</code>, and every entry from
+their “Dependency vetting log” sections to that file’s “Dependency
+vetting log” section (create the section if missing) — the coders are
+forbidden from editing the file directly to avoid parallel write
+conflicts. For every “Blocked — out of ownership” entry, decide how to
+route it: if the file belongs to another unit, hand the change to that
+unit’s agent (or a follow-up foreground agent); otherwise dispatch a
+small foreground agent to apply it, and add the touched files to
+<code>FILES_TOUCHED_UNION</code>. 8. If no conflicts are found, proceed
+directly to the next phase</p>
+<hr />
+</section>
+
+<section id="p7" class="phase review" data-phase-type="review"><h3><span class="num">Phase 7</span>Code Reviewer <span class="pill fg">foreground</span><span class="pill cond">conditional</span></h3><div class="meta-row"><span class="chip"><strong>Agent</strong><code>general-purpose</code></span></div>
+<p>Launch a <strong>foreground</strong> agent to review all implemented
+code.</p>
+
+<pre><code>You are a senior code reviewer. Review all code produced by the implementation phase. You MUST use Serena semantic tools and LSP tools for verification — do not rely solely on reading files.
+
+The original user request was: &quot;[INSERT RAW REQUEST HERE]&quot;
+
+Steps:
+1. Read the refined request specification at `[REFINED REQUEST FILE]` to understand the acceptance criteria
+2. Read the technical design at `[DESIGN SPEC FILE]`
+3. Read the plan at `[PLAN FILE]`
+4. If a codebase scan exists at `[CODEBASE SCAN FILE]`, read its YAML frontmatter (`build_command`, `test_command`, `lint_command`) and use those commands in the quality verification below instead of guessing them
+5. The orchestrator verified the implementation&#39;s file list during the post-coding conflict check — review these files: [FILES TOUCHED UNION]. Cross-check with `git status --porcelain` (changed AND untracked paths — `git diff --name-only` would miss newly created files) and the design&#39;s `files_to_create`/`files_to_modify` frontmatter. When comparing, ignore the workflow&#39;s own artifacts — files under `docs/reference/`, `docs/design/`, `prompts/`, plus `Issues - Pending Items.md` and the project `CLAUDE.md` — they are orchestrator-owned and expected to differ. Investigate any other discrepancy before reviewing further
+
+6. **Semantic verification** — for each modified file:
+   a. Use `mcp__cclsp__get_diagnostics` to check for type errors, warnings, and other compiler issues
+   b. Use `mcp__serena__get_symbols_overview` to verify the symbol structure matches the design
+   c. For changed symbols, use `mcp__serena__find_referencing_symbols` to verify all references are intact and updated
+   d. Use `mcp__cclsp__find_references` to trace any broken call chains
+
+7. **Quality verification** — for each file:
+   - Correctness: Does the code do what the design specifies?
+   - Completeness: Are all design requirements implemented?
+   - Build: Run the build command from the codebase scan frontmatter (step 4) to verify compilation; only if no scan exists, detect it (e.g. `npx tsc --noEmit` or equivalent)
+   - Style: Does it follow project conventions?
+   - Security: No command injection, XSS, SQL injection, or other OWASP top 10 vulnerabilities
+   - Configuration: No fallback values for missing configuration settings
+   - Documentation: Does every new tool have a concise entry in the project CLAUDE.md &quot;Tools&quot; section pointing to its `docs/tools/&lt;tool-name&gt;.md` documentation file, and does that file exist? Flag gaps in your summary — do NOT hand-write the documentation file yourself (the tool-doc-config-architect agent owns its format)
+
+8. If gaps or deviations from the design are found:
+   a. Fix the code issues using Serena tools (`mcp__serena__replace_symbol_body`, `mcp__serena__insert_after_symbol`, etc.)
+   b. Update the technical design at `[DESIGN SPEC FILE]` to reflect any necessary design changes, and mirror each change as a dated note in this design&#39;s section of `docs/design/project-design.md`
+   c. Re-verify with `mcp__cclsp__get_diagnostics` until design and implementation are aligned
+
+9. Update `Issues - Pending Items.md` at the project root:
+   - Add any unresolved issues found during review
+   - Remove any issues that were fixed during this process
+   - Order: critical/important pending items first, completed items after
+
+10. Produce a review report and save it to `&lt;absolute path to project root&gt;/docs/reference/code-review-[WORKFLOW SLUG].md` with: files reviewed, diagnostics found, issues fixed, design changes made (step 8b), remaining concerns, and an overall verdict (`approved` | `approved_with_concerns` | `rework_needed`). End your final message with the absolute path of the report and the verdict</code></pre>
+<p><strong>Wait for completion before proceeding.</strong></p>
+<p>After Phase 7 completes: 1. Store the report path the agent returned
+as <code>REVIEW_REPORT_FILE</code>. 2. If the verdict is
+<code>rework_needed</code>, surface the remaining concerns to the user
+via AskUserQuestion (re-run the affected Phase 6 unit, continue anyway,
+or abort) before proceeding. 3. If the verdict is
+<code>approved_with_concerns</code>, no gate is needed — but the
+concerns must not be dropped: the review report is passed to Phase 10
+(which verifies each concern was addressed or lists it as unresolved),
+and every concern still open after Phase 10 must appear in the
+Post-Workflow Summary.</p>
+<hr />
+</section>
+
+<section id="p8" class="phase review" data-phase-type="review"><h3><span class="num">Phase 8</span>Dependency Validator <span class="pill fg">foreground</span></h3><div class="meta-row"><span class="chip"><strong>Agent</strong><code>dependency-validator</code></span></div>
+<p>Launch a <strong>foreground</strong> agent using the
+<code>dependency-validator</code> agent to verify that the
+implementation uses no deprecated modules and is free of known security
+advisories.</p>
+
+<pre><code>Validate this project&#39;s dependency tree.
+
+Inputs:
+- target_path: &lt;absolute path to the project root&gt;
+- request_file: [REFINED REQUEST FILE]
+- output_path: &lt;absolute path to project root&gt;/docs/reference/dependency-validation-[WORKFLOW SLUG].md
+- mode: fix
+- max_iterations: 5
+- include_security_audit: true
+
+Run the full validate → replace → re-install loop until the project is clean, the iteration cap is hit, or the loop stalls. Save the structured report to the output_path above.
+
+If your run ends with status `error`, `regressed`, or `stalled`, state that status and its cause prominently at the start of your final message so the workflow can decide whether to abort or continue.</code></pre>
+<p><strong>Wait for completion before proceeding.</strong></p>
+<p>After Phase 8 completes: 1. Read the validation report and store its
+path as <code>DEPENDENCY_VALIDATION_FILE</code>. 2. Inspect the YAML
+frontmatter <code>status</code> field: - <code>clean</code> → continue
+to step 3. - <code>skipped_no_manifest</code> → no package manager
+detected; announce it in one sentence and proceed directly to Phase 9
+(step 3 does not apply). - <code>deprecations_found</code> <em>(expected
+only from <code>report-only</code>/<code>interactive</code> runs — with
+<code>mode: fix</code> it means the mode input was not honored)</em>,
+<code>partially_fixed</code>, <code>stalled</code>,
+<code>max_iterations_reached</code>, <code>regressed</code>,
+<code>error</code> → use <code>AskUserQuestion</code> to surface the
+situation to the user with the manual-review items from the report, and
+ask whether to continue, retry, or abort. 3. <strong>Post-validation
+re-check</strong>: if the report shows the validator replaced any
+modules, it modified manifests — and possibly import statements — AFTER
+the Phase 7 code review. Read the report’s list of replaced modules and
+touched files, run <code>mcp__cclsp__get_diagnostics</code> on any
+modified source files, and run the project’s build command to confirm
+compilation still succeeds. If diagnostics or the build fail, fix the
+breakage (or surface it via AskUserQuestion) before launching Phase 9.
+If no replacements were made, proceed directly.</p>
+<hr />
+</section>
+
+<section id="p9" class="phase par" data-phase-type="par"><h3><span class="num">Phase 9</span>Test Builders (Parallel Test Implementation) <span class="pill bg">parallel · background</span></h3><div class="meta-row"><span class="chip"><strong>Agent</strong><code>test-builder</code> (one instance
+per unit)</span></div>
+<p>Based on the implementation, identify independent testable units and
+launch one <strong>parallel</strong> <code>test-builder</code> agent per
+unit.</p>
+<p><strong>Splitting rules</strong> (the orchestrator decides the splits
+before launching): - <strong>Default split</strong>: one test-builder
+per implementation unit from the design’s
+<code>implementation_units</code> frontmatter (at
+<code>[DESIGN SPEC FILE]</code>) — those units were already verified
+pairwise file-disjoint, which is exactly the property the test split
+needs. Deviate only when the rules below force it (e.g. two units’ tests
+would land in the same test files, or a unit is doc-only). - Each unit
+must have a clear <code>scope</code> description — feature name, file
+list, or symbol list. - Two units must not target the same source files
+(otherwise the agents would race to write tests for the same symbols). -
+Two units must not require modifying the same shared test infrastructure
+(e.g. both needing to add a fixture to <code>conftest.py</code>) — the
+agent will refuse to edit shared infra and surface the conflict. - If
+only one independent unit exists, launch it as a
+<strong>foreground</strong> agent instead of a background task.</p>
+
+<pre><code>Build tests for the assigned scope.
+
+Inputs:
+- scope: [SCOPE DESCRIPTION FROM SPLIT — feature name, file list, or symbol list]
+- target_path: &lt;absolute path to project root&gt;
+- output_path: &lt;absolute path to project root&gt;/docs/reference/test-build-[WORKFLOW SLUG]-[scope-slug].md
+- request_file: [REFINED REQUEST FILE]
+- design_file: [DESIGN SPEC FILE]
+- codebase_scan_file: [CODEBASE SCAN FILE]   (omit this line if Phase 2 was skipped)
+- mode: write-and-run
+
+Detect the framework (or read it from codebase_scan_file), find existing tests for the symbols in scope, update them where the implementation changed, add new tests for new behavior, then run only the tests you touched. Do not modify any production source. Do not edit shared test infrastructure (conftest.py, setup files, jest.config.*) — surface those needs in &quot;Manual review needed&quot; instead.
+
+Save the structured report to the output_path above and return the path plus pass/fail counts.</code></pre>
+<p>Launch all test-builder agents using
+<code>run_in_background: true</code> and track their completion.</p>
+<p><strong>Wait for all test-builder agents to complete.</strong></p>
+<p><strong>Aggregation step</strong> — after all agents finish: 1.
+Collect each agent’s report path and store the list as
+<code>TEST_BUILD_REPORT_FILES</code>. 2. Read each report’s YAML
+frontmatter and aggregate: - Total <code>tests_added</code>,
+<code>tests_updated</code>, <code>tests_passed</code>,
+<code>tests_failed</code>, <code>implementation_gaps</code>. - Any agent
+with <code>status</code> other than <code>completed</code> → surface its
+situation. - All entries from each report’s “Manual review needed” →
+present them collectively. 3. If any agent reports
+<code>implementation_gaps &gt; 0</code>, use
+<code>AskUserQuestion</code> to ask whether to: - Continue to Phase 10
+(the integration verifier may surface them again with more context), -
+Pause to fix the implementation gaps now (re-run Phase 6/7 for the
+affected unit), or - Abort the workflow. 4. If any agent reports
+<code>status: ownership_violation</code>, <code>invalid_input</code>,
+<code>scope_unresolvable</code>, or <code>error</code>, abort and
+surface the failure — these indicate a defect in how the orchestrator
+split the work (an unresolvable or malformed scope is the orchestrator’s
+fault, not the agent’s).</p>
+<hr />
+</section>
+
+<section id="p10" class="phase review" data-phase-type="review"><h3><span class="num">Phase 10</span>Integration
+Verifier <span class="pill fg">foreground</span></h3><div class="meta-row"><span class="chip"><strong>Agent</strong><code>general-purpose</code></span></div>
+<p>Launch a <strong>foreground</strong> agent to run the complete build
+and test suite, verifying that everything works together end-to-end.</p>
+
+<pre><code>You are an integration verification specialist. Your task is to verify that the entire implementation builds, passes all tests, and works as a cohesive whole.
+
+The original user request was: &quot;[INSERT RAW REQUEST HERE]&quot;
+
+Read the refined request specification at `[REFINED REQUEST FILE]` to understand the acceptance criteria.
+
+Read the plan at `[PLAN FILE]` — its &quot;Verification&quot; section defines the overall checks the plan committed to.
+
+Read the test-build reports at [TEST BUILD REPORT FILES] so known implementation gaps and &quot;Manual review needed&quot; items inform your acceptance-criteria check instead of being rediscovered from scratch.
+
+Read the code-review report at `[REVIEW REPORT FILE]` — for each entry under its &quot;remaining concerns&quot;, verify whether it has since been addressed; list every concern still open in your verification report under a &quot;Review concerns still open&quot; section (an empty section means all were addressed).
+
+If a dependency validation report exists at `[DEPENDENCY VALIDATION FILE]`, read its status and manual-review items.
+
+If a codebase scan exists at `[CODEBASE SCAN FILE]`, read it first to identify the project&#39;s build command, test runner, and lint configuration rather than guessing.
+
+Execute the following verification steps in order:
+
+1. **Build verification**:
+   - Run the project&#39;s build command (use the one identified in the codebase scan if available, otherwise detect: e.g., `npx tsc --noEmit`, `npm run build`, or equivalent)
+   - Capture and report any build errors
+   - If build fails, list all errors with file paths and line numbers
+
+2. **Test suite execution**:
+   - Identify the project&#39;s test runner (e.g., jest, vitest, mocha, pytest)
+   - Run the complete test suite (e.g., `npm test`, `npx jest`, `npx vitest run`, or equivalent)
+   - Capture the full output including pass/fail counts
+   - If any tests fail, report: test name, file, assertion that failed, and error message
+
+3. **Lint/static analysis** (if configured):
+   - Check if a linter is configured (eslint, prettier, etc.)
+   - If so, run it and report any violations
+
+4. **Acceptance criteria check**:
+   - Review each acceptance criterion from the refined request
+   - For each criterion, state whether it is met, partially met, or not met, with evidence
+
+5. **Produce a verification report** and save it to `&lt;absolute path to project root&gt;/docs/reference/integration-verification-[WORKFLOW SLUG].md`:
+   - Build status: pass/fail (with error count if failed)
+   - Test results: total, passed, failed, skipped
+   - Lint results: clean / violations found
+   - Acceptance criteria: met / not met per criterion
+   - Overall verdict: READY or NEEDS FIXES
+   If you perform fixes (step 6), update the report afterwards so it reflects the final state. End your final message with the absolute path of the report file.
+
+6. **If NEEDS FIXES**:
+   - List all issues that must be resolved, ordered by severity
+   - Attempt to fix build errors and failing tests
+   - Re-run the build and test suite after fixes
+   - If fixes cannot be resolved, document them clearly
+
+Update `Issues - Pending Items.md` with any unresolved issues found during verification.</code></pre>
+<p><strong>Wait for completion before proceeding.</strong></p>
+<p>After Phase 10 completes, store the report path the agent returned as
+<code>INTEGRATION_REPORT_FILE</code>.</p>
+<hr />
+</section>
+<h2 id="checkpoint-resume">Checkpoint &amp; Resume</h2>
+<p>After each phase completes successfully, write a checkpoint file at
+<code>docs/reference/workflow-checkpoint.json</code> with the following
+structure:</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;workflow&quot;</span><span class="fu">:</span> <span class="st">&quot;team-workflow&quot;</span><span class="fu">,</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;ISO 8601 timestamp&gt;&quot;</span><span class="fu">,</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;request_summary&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;short description of the request&gt;&quot;</span><span class="fu">,</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;workflow_slug&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;WORKFLOW_SLUG or null&gt;&quot;</span><span class="fu">,</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;git_head&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;output of `git rev-parse HEAD` at checkpoint time, or null&gt;&quot;</span><span class="fu">,</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;last_completed_phase&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;phase id as a string — </span><span class="ch">\&quot;</span><span class="st">1</span><span class="ch">\&quot;</span><span class="st">, </span><span class="ch">\&quot;</span><span class="st">2</span><span class="ch">\&quot;</span><span class="st">, </span><span class="ch">\&quot;</span><span class="st">3a</span><span class="ch">\&quot;</span><span class="st">, </span><span class="ch">\&quot;</span><span class="st">3b</span><span class="ch">\&quot;</span><span class="st">, </span><span class="ch">\&quot;</span><span class="st">4</span><span class="ch">\&quot;</span><span class="st"> ... — never a bare number, since 3a/3b are not integers&gt;&quot;</span><span class="fu">,</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;last_completed_phase_name&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;phase name&gt;&quot;</span><span class="fu">,</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;artifacts&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;REFINED_REQUEST_FILE&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;path or null&gt;&quot;</span><span class="fu">,</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;CODEBASE_SCAN_FILE&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;path or null&gt;&quot;</span><span class="fu">,</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;INVESTIGATION_FILE&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;path or null&gt;&quot;</span><span class="fu">,</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;TECHNICAL_RESEARCH_FILES&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;&lt;path1&gt;&quot;</span><span class="ot">,</span> <span class="st">&quot;&lt;path2&gt;&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;PLAN_FILE&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;path or null&gt;&quot;</span><span class="fu">,</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;DESIGN_SPEC_FILE&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;path or null&gt;&quot;</span><span class="fu">,</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;DESIGN_FILE&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;path or null&gt;&quot;</span><span class="fu">,</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;FILES_TOUCHED_UNION&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;&lt;path1&gt;&quot;</span><span class="ot">,</span> <span class="st">&quot;&lt;path2&gt;&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;REVIEW_REPORT_FILE&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;path or null&gt;&quot;</span><span class="fu">,</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;DEPENDENCY_VALIDATION_FILE&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;path or null&gt;&quot;</span><span class="fu">,</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;TEST_BUILD_REPORT_FILES&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;&lt;path1&gt;&quot;</span><span class="ot">,</span> <span class="st">&quot;&lt;path2&gt;&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;INTEGRATION_REPORT_FILE&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;path or null&gt;&quot;</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;decisions&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;triage&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;phase&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;phase id, e.g. </span><span class="ch">\&quot;</span><span class="st">2</span><span class="ch">\&quot;</span><span class="st">, </span><span class="ch">\&quot;</span><span class="st">3a</span><span class="ch">\&quot;</span><span class="st">, </span><span class="ch">\&quot;</span><span class="st">3b</span><span class="ch">\&quot;</span><span class="st">&gt;&quot;</span><span class="fu">,</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;action&quot;</span><span class="fu">:</span> <span class="st">&quot;skipped | reused&quot;</span><span class="fu">,</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;reason&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;one sentence&gt;&quot;</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;duplication_directive&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;verbatim directive text from the Phase 2 duplication check, or null&gt;&quot;</span><span class="fu">,</span></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;integration_directive&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;verbatim directive text for the Designer, or null&gt;&quot;</span><span class="fu">,</span></span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;resolved_open_questions&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;phase&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;</span><span class="ch">\&quot;</span><span class="st">1</span><span class="ch">\&quot;</span><span class="st"> or </span><span class="ch">\&quot;</span><span class="st">4</span><span class="ch">\&quot;</span><span class="st"> — which gate resolved it&gt;&quot;</span><span class="fu">,</span></span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;question&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;the question&gt;&quot;</span><span class="fu">,</span></span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;answer&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;the user&#39;s answer&gt;&quot;</span></span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;design_approved&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;true | false | null — null until the Phase 5 review gate runs&gt;&quot;</span></span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;phases&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;phase&quot;</span><span class="fu">:</span> <span class="st">&quot;1&quot;</span><span class="fu">,</span></span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Request Refiner&quot;</span><span class="fu">,</span></span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="st">&quot;completed&quot;</span><span class="fu">,</span></span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;ISO 8601&gt;&quot;</span></span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;phase&quot;</span><span class="fu">:</span> <span class="st">&quot;6&quot;</span><span class="fu">,</span></span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Coders&quot;</span><span class="fu">,</span></span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="st">&quot;in_progress&quot;</span><span class="fu">,</span></span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;ISO 8601&gt;&quot;</span><span class="fu">,</span></span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;units&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a>          <span class="dt">&quot;unit&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;short unit description from the design&gt;&quot;</span><span class="fu">,</span></span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a>          <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="st">&quot;completed | in_progress | failed&quot;</span><span class="fu">,</span></span>
+<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a>          <span class="dt">&quot;files_touched&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;&lt;path1&gt;&quot;</span><span class="ot">,</span> <span class="st">&quot;&lt;path2&gt;&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a>          <span class="dt">&quot;report_path&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;path or null&gt;&quot;</span></span>
+<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a>      <span class="ot">]</span></span>
+<span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb12-63"><a href="#cb12-63" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb12-64"><a href="#cb12-64" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p><strong>Overwrite</strong> the checkpoint file after each phase — it
+always reflects the latest state.</p>
+<p><strong>The <code>decisions</code> block is part of the checkpoint,
+not an afterthought</strong>: update it the moment a decision is made (a
+triage skip, a duplication/integration directive, a resolved open
+question, the design-review approval) — these decisions bind downstream
+prompts, so a resume that loses them would dispatch agents without their
+directives. Use <code>[]</code>/<code>null</code> for decisions not
+(yet) made.</p>
+<p><strong>Per-unit checkpointing for parallel phases (6 and
+9)</strong>: do not wait for the whole phase to finish before
+checkpointing. When the parallel agents are launched, write the phase
+entry with <code>status: in_progress</code> and one <code>units</code>
+entry per unit. As each agent completes, update its unit’s
+<code>status</code>, <code>files_touched</code> (Phase 6), and
+<code>report_path</code> (Phase 9). On resume, a phase whose entry has
+incomplete units is re-entered by re-dispatching ONLY the units not
+marked <code>completed</code> — never re-run a completed unit, as its
+agent already mutated files.</p>
+<p><strong>Resuming a workflow</strong>: If the user invokes this
+command and a <code>docs/reference/workflow-checkpoint.json</code> file
+already exists: 1. Read the checkpoint file 2. Verify the
+<code>"workflow"</code> field matches <code>"team-workflow"</code>. If
+it doesn’t (e.g., it’s from a change-workflow run), inform the user: “A
+checkpoint from a different workflow ([workflow name]) was found. It
+cannot be resumed by team-workflow. Delete it and start fresh?” If the
+user confirms, delete the file and proceed normally. 3.
+<strong>Staleness validation</strong> before offering to resume: -
+Verify every non-null artifact path in the checkpoint still exists on
+disk. List any missing files. - Compare the checkpoint’s
+<code>git_head</code> with the current <code>git rev-parse HEAD</code>.
+If they differ, the codebase has moved since the checkpoint —
+completed-phase artifacts (scan, plan, design) may no longer match
+reality. - If artifacts are missing or HEAD has moved, include this
+prominently in the resume question: “Warning: [N artifacts missing /
+HEAD has moved since the checkpoint]. Resuming may operate on stale
+state.” 4. Present the checkpoint state to the user: which phase
+completed last, what artifacts exist, when it was saved, and any
+staleness warnings from step 3 5. Use AskUserQuestion to ask: “A
+previous workflow checkpoint was found (last completed: Phase [N] —
+[name]). Do you want to resume from Phase [N+1], or start a fresh
+workflow?” 6. If resuming, restore <code>WORKFLOW_SLUG</code>, the
+artifact paths, AND the entire <code>decisions</code> block from the
+checkpoint — re-apply the triage skips (do not re-triage), and re-inject
+<code>duplication_directive</code>, <code>integration_directive</code>,
+and <code>resolved_open_questions</code> into the downstream prompts
+exactly as a fresh run would have. Then skip directly to the next
+uncompleted phase. If the last phase entry is a parallel phase (6 or 9)
+with <code>status: in_progress</code>, re-enter it and re-dispatch only
+the units not marked <code>completed</code>. 7. If starting fresh,
+delete the checkpoint file and proceed normally</p>
+<p><strong>Cleanup</strong>: After the Post-Workflow Summary is
+presented to the user, delete the checkpoint file — the workflow is
+complete.</p>
+<hr />
+<h2 id="post-workflow-summary">Post-Workflow Summary</h2>
+<p>After all phases complete:</p>
+<ol type="1">
+<li>Read the <code>Issues - Pending Items.md</code> file and present any
+outstanding items</li>
+<li>Provide a summary to the user:
+<ul>
+<li>What was implemented</li>
+<li>Files created/modified</li>
+<li>Tests created</li>
+<li>Any remaining issues or manual steps needed — including every
+code-review concern still open after Phase 10 (from the integration
+report’s “Review concerns still open” section)</li>
+<li>Links to all generated documentation, including the integration
+verification report at <code>INTEGRATION_REPORT_FILE</code></li>
+</ul></li>
+<li>Delete the <code>docs/reference/workflow-checkpoint.json</code>
+file</li>
+</ol>
+<h2 id="error-handling">Error Handling</h2>
+<ul>
+<li>If any phase fails, the checkpoint file preserves progress up to the
+last successful phase</li>
+<li>Stop the workflow and report the failure to the user with
+context</li>
+<li>Ask the user whether to retry the failed phase, skip it, or abort
+the workflow</li>
+<li>Never silently skip a phase</li>
+</ul>
+<h2 id="important-constraints">Important Constraints</h2>
+<ul>
+<li>Tools created in the project are written in TypeScript (per project
+CLAUDE.md); other code follows the project’s established language
+(Python REST APIs use FastAPI per the global CLAUDE.md)</li>
+<li>No fallback values for configuration settings - raise exceptions for
+missing config</li>
+<li>New tools are scaffolded exclusively via the
+<code>tool-doc-config-architect</code> agent (per
+<code>/tool-conventions</code>); the project CLAUDE.md “Tools” section
+gets only a concise entry pointing to
+<code>docs/tools/&lt;tool-name&gt;.md</code> — never full tool
+documentation</li>
+<li>Plans go in
+<code>docs/design/plan-NNN-&lt;description&gt;.md</code></li>
+<li>Reference material goes in <code>docs/reference/</code></li>
+<li>Test scripts go in <code>test_scripts/</code></li>
+<li>Prompts go in <code>prompts/</code> with sequential numbering</li>
+<li>Database tables use singular names</li>
+<li>Update <code>Issues - Pending Items.md</code> at project root</li>
+<li>Update <code>docs/design/project-functions.md</code> with functional
+requirements</li>
+<li>Update <code>docs/design/project-design.md</code> with design
+changes</li>
+</ul>
+
+  </main>
+</body>
+</html>
