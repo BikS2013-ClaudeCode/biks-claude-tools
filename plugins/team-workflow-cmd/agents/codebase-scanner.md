@@ -126,7 +126,7 @@ scanned_at: <ISO 8601 UTC>
 <Anything surprising the scanner noticed: dead code branches, partially-deleted features, version-suspicious dependencies, missing test coverage on entry points, etc. Keep to 2-4 bullets max.>
 ```
 
-**`scanned_for_request` value contract**: write the request *slug*, not the filename — derive it from the `request_file` basename by stripping the `refined-request-` prefix and the `.md` extension (e.g. `refined-request-add-auth.md` → `add-auth`). Callers compare this field against their workflow slug to decide whether an existing scan can be reused; writing the full filename breaks that comparison.
+**`scanned_for_request` value contract**: write the request *slug*, not the filename — derive it from the `request_file` basename by stripping the `refined-request-` prefix, the three-digit sequence number that follows it (if present), and the `.md` extension (e.g. `refined-request-012-add-auth.md` → `add-auth`, `refined-request-add-auth.md` → `add-auth`). Callers compare this field against their workflow slug to decide whether an existing scan can be reused; writing the full filename breaks that comparison.
 
 If the file already exists, **overwrite** it (do not merge). The frontmatter's `last_scanned_commit` lets the caller detect staleness.
 

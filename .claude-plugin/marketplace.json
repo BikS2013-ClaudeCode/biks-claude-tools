@@ -12,7 +12,7 @@
     {
       "name": "team-workflow-cmd",
       "description": "Multi-agent team workflow: orchestrates a coordinated team of subagents to refine, investigate, research, scan, plan, design, implement (parallel coders), review, validate dependencies, build tests, and verify integration for a development request.",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "source": "./plugins/team-workflow-cmd",
       "author": {
         "name": "Giorgos Marinos"

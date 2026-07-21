@@ -110,9 +110,13 @@ Based on the request category, select the appropriate specification template:
 **Step 5: Produce the refined request**
 
 Save the refined specification as a markdown file at:
-`docs/reference/refined-request-[descriptive-name].md`
+`docs/refined_requests/refined-request-[NNN]-[descriptive-name].md`
 
-Where `[descriptive-name]` is the request **slug**: 3-5 hyphen-separated lowercase words, max 40 characters, derived from the request objective. Prefer a domain-noun + action + subject pattern (e.g. `api-auth-jwt`, `dashboard-azure-costs`, `ci-pipeline-microservices`). Downstream workflows reuse this exact slug to name every other artifact of the request (investigation, codebase scan, plan, validation reports), so keep it stable and predictable.
+Create the `docs/refined_requests/` folder if it does not exist.
+
+Where `[NNN]` is a zero-padded three-digit sequential number: list the existing `refined-request-*.md` files in `docs/refined_requests/`, take the highest `NNN` present, and add one; use `001` when the folder is empty or missing.
+
+Where `[descriptive-name]` is the request **slug**: 3-5 hyphen-separated lowercase words, max 40 characters, derived from the request objective. Prefer a domain-noun + action + subject pattern (e.g. `api-auth-jwt`, `dashboard-azure-costs`, `ci-pipeline-microservices`). Downstream workflows reuse this exact slug to name every other artifact of the request (investigation, codebase scan, plan, validation reports), so keep it stable and predictable. The sequence number belongs to the refined-request filename only — it is NOT part of the slug.
 
 </process>
 
@@ -184,7 +188,7 @@ The raw request text, preserved verbatim for reference.
 - NEVER ask more than 2 rounds of clarifying questions — if still unclear, document as assumptions
 - NEVER use AskUserQuestion when dispatched by a workflow orchestrator — unresolvable ambiguities become Open Questions entries with recommended defaults; the orchestrator gates on them after you finish
 - ALWAYS preserve the original request text verbatim in the output
-- ALWAYS save the refined specification to `docs/reference/refined-request-[name].md`
+- ALWAYS save the refined specification to `docs/refined_requests/refined-request-[NNN]-[name].md`
 - DO NOT make implementation decisions — only clarify WHAT, not HOW
 - DO NOT over-specify — leave room for implementation-phase decisions on approach and design
 - KEEP the refinement focused and proportional to the request complexity
@@ -203,7 +207,7 @@ Keep the report under 150 words. The detailed specification is in the file.
 
 <success-criteria>
 The refinement is complete when:
-1. A refined specification file has been saved to `docs/reference/`
+1. A refined specification file has been saved to `docs/refined_requests/` with the next sequential number
 2. All critical ambiguities have been resolved (by user input or documented as assumptions)
 3. The specification contains verifiable acceptance criteria
 4. The scope boundaries are explicitly defined
