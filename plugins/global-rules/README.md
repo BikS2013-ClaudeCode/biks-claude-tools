@@ -18,6 +18,14 @@ exactly which instructions are in place for every project.
   `~/.claude/.global-rules-state/` (three-way comparison).
 - On a dev machine where `~/.claude/CLAUDE.md` or `~/.claude/rules` is a
   symlink into the canonical repo, the sync **skips** that part entirely.
+- A second SessionStart hook (`scripts/sync-project-claude-md.sh`) maintains
+  the `<structure-and-conventions>` documentation-map block in the **current
+  project's** `CLAUDE.md`: it creates the file at the git toplevel when
+  missing, inserts or replaces the tagged block when absent/outdated, and
+  preserves all other project content. A machine-local master at
+  `~/.claude/structure-and-conventions.md` overrides the bundled copy when
+  present, and on a machine that also has the canonical hook script
+  (`~/.claude/scripts/sync-claude-md.sh`) the plugin defers to it entirely.
 - `/global-rules:rules-status` shows a per-file report of what is installed,
   in sync, outdated, or locally modified.
 
@@ -27,11 +35,14 @@ exactly which instructions are in place for every project.
 |---|---|
 | `content/CLAUDE.md` | `~/.claude/CLAUDE.md` |
 | `content/rules/*.md` | `~/.claude/rules/*.md` |
+| `content/structure-and-conventions.md` | `<structure-and-conventions>` block inside each project's `CLAUDE.md` |
 
 ## Repackaging (maintainers)
 
-The canonical sources live in the `claude-workdocs` repo:
-`.claude/claude.md` and `.claude/rules/*.md`. To release an update, copy them
+The canonical sources live in the `claude-workdocs` repo: `.claude/claude.md`,
+`.claude/rules/*.md`, and `.claude/structure-and-conventions.md` (keep the
+bundled copy byte-identical to the master so dev-synced and plugin-synced
+projects never flip-flop). To release an update, copy them
 into `content/`, bump the version in `.claude-plugin/plugin.json` and in the
 marketplace's `marketplace.json`, then commit and push the marketplace repo.
 
