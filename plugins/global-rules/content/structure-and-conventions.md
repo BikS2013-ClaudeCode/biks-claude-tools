@@ -10,8 +10,8 @@
 
 ### Where the documentation lives
 
-- `docs/design/` — all planning and design documents:
-  - `plan-NNN-<indicative-description>.md` — one file per plan.
+- `docs/plans/` — every plan, one file per plan, named `plan-NNN-<indicative-description>.md`.
+- `docs/design/` — all other planning and design documents:
   - `project-design.md` — the complete, always-current project design; update it with every new design or design change.
   - `project-functions.md` — the registry of all functional requirements and feature descriptions.
   - `configuration-guide.md` — the project's configuration guide, when one exists (structure below).

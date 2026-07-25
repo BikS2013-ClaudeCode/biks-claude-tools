@@ -12,7 +12,7 @@
     {
       "name": "global-rules",
       "description": "Deploys the shared global CLAUDE.md and the ~/.claude/rules working rules onto the machine as real files, so it is always visible on disk what instructions are in place. SessionStart hooks keep them in sync (never overwriting local edits without --force) and maintain the <structure-and-conventions> documentation-map block in each project's CLAUDE.md. /global-rules:rules-status reports the state of every managed file.",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "source": "./plugins/global-rules",
       "author": {
         "name": "Giorgos Marinos"
