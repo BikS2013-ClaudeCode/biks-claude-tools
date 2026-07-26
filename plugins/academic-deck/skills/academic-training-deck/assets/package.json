@@ -1,0 +1,19 @@
+{
+  "name": "academic-training-deck",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Build academic and training presentations with the Academic & Training design system (18 layouts, two palettes)",
+  "license": "MIT",
+  "main": "deck-lib.js",
+  "scripts": {
+    "template:teal": "node build-template.js --palette teal -o template-teal.pptx",
+    "template:burgundy": "node build-template.js --palette burgundy -o template-burgundy.pptx",
+    "qa": "node qa-check.js"
+  },
+  "dependencies": {
+    "pptxgenjs": "^4.0.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

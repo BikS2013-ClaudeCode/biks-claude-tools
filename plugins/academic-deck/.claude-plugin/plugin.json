@@ -1,0 +1,21 @@
+{
+  "name": "academic-deck",
+  "description": "Build academic and training presentations (lectures, workshops, research talks, professional training) as editable .pptx files. Bundles the academic-training-deck skill — an 18-layout design system in two palettes (Warm Academic burgundy / Lean Corporate teal) with a ready pptxgenjs layout library, a template generator, and an automated QA checker — plus the /academic-deck command that turns a brief into a finished deck.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Giorgos Marinos"
+  },
+  "license": "MIT",
+  "keywords": [
+    "presentation",
+    "pptx",
+    "powerpoint",
+    "google-slides",
+    "academic",
+    "training",
+    "lecture",
+    "pptxgenjs",
+    "design-system",
+    "template"
+  ]
+}
