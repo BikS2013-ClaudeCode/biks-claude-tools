@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * qa-check.js — automated QA for decks built with the Academic & Training template.
+ * qa-check.js — automated QA for decks built with the engineering deck template.
  *
  *   node qa-check.js my-deck.pptx
  *   node qa-check.js my-deck.pptx --json

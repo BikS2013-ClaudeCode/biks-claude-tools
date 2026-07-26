@@ -1,8 +1,8 @@
 /**
- * deck-lib.js — Academic & Training presentation template
+ * deck-lib.js — engineering presentation template
  *
- * A pptxgenjs wrapper implementing the 18 canonical layouts of the
- * Academic & Training template in two palettes (Warm Academic / Lean Corporate).
+ * A pptxgenjs wrapper implementing the 18 canonical layouts of the engineering
+ * deck system in two palettes (Warm Editorial / Lean Corporate).
  *
  * Usage:
  *   const { createDeck } = require("./deck-lib");
@@ -30,7 +30,7 @@ const pptxgen = require("pptxgenjs");
  * ------------------------------------------------------------------ */
 
 const PALETTES = {
-  // Palette A — Warm Academic. Scholarly / editorial / humanities.
+  // Palette A — Warm Editorial. Papers / evaluations / academic-conference talks.
   burgundy: {
     ink: "1A1A1A",
     paper: "FFFFFF",
@@ -44,7 +44,7 @@ const PALETTES = {
     chartB: "C97B5A",
     chartC: "E0C097",
   },
-  // Palette B — Lean Corporate. Tech / strategy / LeanPresentationStyle-adjacent.
+  // Palette B — Lean Corporate. The default: engineering / platform / product.
   teal: {
     ink: "1A1A2E",
     paper: "FFFFFF",

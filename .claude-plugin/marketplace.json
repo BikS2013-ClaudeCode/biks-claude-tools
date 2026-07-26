@@ -10,10 +10,10 @@
   },
   "plugins": [
     {
-      "name": "academic-deck",
-      "description": "Build academic and training presentations (lectures, workshops, research talks, professional training) as editable .pptx files. Bundles the academic-training-deck skill — an 18-layout design system in two palettes (Warm Academic burgundy / Lean Corporate teal) with a ready pptxgenjs layout library, a template generator, and an automated QA checker — plus the /academic-deck command that turns a brief into a finished deck.",
-      "version": "1.0.0",
-      "source": "./plugins/academic-deck",
+      "name": "engineering-deck",
+      "description": "Build engineering and technical presentations as editable .pptx files — design reviews, architecture walkthroughs, tech talks, RFC and ADR presentations, postmortems, benchmark reports, migration proposals, engineering onboarding. Bundles the engineering-deck skill — an 18-layout design system in two palettes (Lean Corporate teal / Warm Editorial burgundy) with a ready pptxgenjs layout library, a template generator, and an automated QA checker — plus the /engineering-deck command that turns a brief into a finished deck.",
+      "version": "2.0.0",
+      "source": "./plugins/engineering-deck",
       "author": {
         "name": "Giorgos Marinos"
       }

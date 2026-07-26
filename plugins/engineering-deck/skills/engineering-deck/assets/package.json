@@ -1,8 +1,8 @@
 {
-  "name": "academic-training-deck",
+  "name": "engineering-deck",
   "version": "1.0.0",
   "private": true,
-  "description": "Build academic and training presentations with the Academic & Training design system (18 layouts, two palettes)",
+  "description": "Build engineering and technical presentations with an 18-layout design system in two palettes",
   "license": "MIT",
   "main": "deck-lib.js",
   "scripts": {

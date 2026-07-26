@@ -29,7 +29,7 @@ identically in PowerPoint and Google Slides.
 Both palettes use the same token names. Selecting one is a single argument to
 `createDeck({ palette })`; nothing else in a build script changes.
 
-### A — Warm Academic (`burgundy`)
+### A — Warm Editorial (`burgundy`)
 
 | Token | Hex | |
 |---|---|---|
@@ -43,7 +43,8 @@ Both palettes use the same token names. Selecting one is a single argument to
 | `line` | `D8D3CB` | dividers, borders |
 | `chartA/B/C` | `8B2635` / `C97B5A` / `E0C097` | burgundy, terracotta, sand |
 
-Use for academic, editorial, scholarly, humanities-adjacent material.
+Use for research-flavoured and editorial material: papers, formal evaluations,
+academic-conference talks, long-form technical writing turned into slides.
 
 ### B — Lean Corporate (`teal`)
 
@@ -59,8 +60,10 @@ Use for academic, editorial, scholarly, humanities-adjacent material.
 | `line` | `CCE4E6` | dividers, borders |
 | `chartA/B/C` | `007B85` / `005F67` / `00454B` | teal ramp |
 
-Use for corporate, tech, strategy material, or when the deck sits next to other
-LeanPresentationStyle work (same `007B85` accent).
+The default. Use for engineering, platform, product, and strategy decks —
+design reviews, architecture walkthroughs, tech talks, postmortems — and
+whenever the deck sits next to other LeanPresentationStyle work (same `007B85`
+accent).
 
 ### Usage rules
 
@@ -117,7 +120,7 @@ createDeck({ palette: "teal", headFont: "Segoe UI" })   // or "Source Sans 3"
 
 ---
 
-## The 11 principles
+## The 12 principles
 
 1. **One visual element per slide.** Every content slide carries at least one
    non-text element: chart, image, icon, panel, table, stat, rule.
@@ -142,9 +145,13 @@ createDeck({ palette: "teal", headFont: "Segoe UI" })   // or "Source Sans 3"
     `"3 / 18"` goes stale the moment a slide moves.
 11. **Every slide has Greek speaker notes** covering purpose, when to use the
     layout, and 1–3 presenter tips.
+12. **Every number carries its conditions, every claim its source.** A latency
+    figure without the percentile and the load, a benchmark without the commit,
+    a diagram without the ADR it came from — all decoration. In a technical
+    room the conditions are the argument.
 
-`deck-lib.js` enforces 4–10 structurally. 1, 2, 3, and 11 are editorial — they
-are yours to hold.
+`deck-lib.js` enforces 4–10 structurally. 1, 2, 3, 11, and 12 are editorial —
+they are yours to hold.
 
 ---
 
@@ -159,8 +166,10 @@ are yours to hold.
 ```
 
 Built by `NOTE(purpose, tips)`. The notes are pedagogical: whoever opens the
-file next — a colleague, a TA, a future you — learns the system from the deck
-itself, without external docs.
+file next — a teammate re-presenting it, a future you six months on — learns the
+system from the deck itself, without external docs. For an internal talk this is
+also where the detail that did not fit on the slide belongs: the caveat, the
+config, the link to the dashboard.
 
 ---
 
@@ -182,8 +191,9 @@ PDF → all 18 layouts render correctly, Inter loads, slide numbers update.
 
 ## Deviations from the source guide
 
-This implementation corrects four coordinate bugs in the original spec, all of
-which broke the 0.5 in safe margin the spec itself mandates:
+The layout system is derived from the Academic & Training presentation guide.
+This implementation corrects four coordinate bugs in that spec, all of which
+broke the 0.5 in safe margin the spec itself mandates:
 
 | Layout | Source | Here | Why |
 |---|---|---|---|

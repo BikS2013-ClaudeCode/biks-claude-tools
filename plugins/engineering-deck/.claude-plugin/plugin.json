@@ -1,0 +1,24 @@
+{
+  "name": "engineering-deck",
+  "description": "Build engineering and technical presentations as editable .pptx files — design reviews, architecture walkthroughs, tech talks, RFC and ADR presentations, postmortems, benchmark reports, migration proposals, engineering onboarding. Bundles the engineering-deck skill — an 18-layout design system in two palettes (Lean Corporate teal / Warm Editorial burgundy) with a ready pptxgenjs layout library, a template generator, and an automated QA checker — plus the /engineering-deck command that turns a brief into a finished deck.",
+  "version": "2.0.0",
+  "author": {
+    "name": "Giorgos Marinos"
+  },
+  "license": "MIT",
+  "keywords": [
+    "presentation",
+    "pptx",
+    "powerpoint",
+    "google-slides",
+    "engineering",
+    "design-review",
+    "architecture",
+    "tech-talk",
+    "postmortem",
+    "benchmark",
+    "pptxgenjs",
+    "design-system",
+    "template"
+  ]
+}
