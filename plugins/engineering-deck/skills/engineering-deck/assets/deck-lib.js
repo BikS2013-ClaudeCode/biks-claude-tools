@@ -91,6 +91,41 @@ function NOTE(purpose, tips = []) {
 }
 
 /* ------------------------------------------------------------------ *
+ * Text fitting
+ * ------------------------------------------------------------------ */
+
+/**
+ * Approximate advance width of a string, in em units, for Inter-like faces.
+ * Rough on purpose: it only has to decide a display font size, not lay out text.
+ */
+const CHAR_EM = { ".": 0.30, ",": 0.30, " ": 0.30, "%": 1.0, "×": 0.75, "x": 0.60 };
+
+function approxWidthEm(text) {
+  let em = 0;
+  for (const ch of String(text)) em += CHAR_EM[ch] !== undefined ? CHAR_EM[ch] : 0.62;
+  return em;
+}
+
+/**
+ * Largest font size (pt) at which `text` still fits on one line in `widthIn`.
+ *
+ * Keeps 10% of the column in reserve. The estimate above is close enough that
+ * a figure sized to the exact width still wraps once the real font metrics are
+ * applied — verified with "€1.4m", which wrapped in Google Slides at the size
+ * the unpadded calculation returned.
+ *
+ * @param {string} text
+ * @param {number} widthIn  available width in inches
+ * @param {number} maxPt    never exceed this size
+ * @param {number} [minPt]  never go below this size
+ */
+function fitStatFontSize(text, widthIn, maxPt, minPt = 40) {
+  const widthPt = widthIn * 72 * 0.9;
+  const em = approxWidthEm(text) || 1;
+  return Math.max(minPt, Math.min(maxPt, Math.floor(widthPt / em)));
+}
+
+/* ------------------------------------------------------------------ *
  * Deck factory
  * ------------------------------------------------------------------ */
 
@@ -815,17 +850,21 @@ function createDeck(opts = {}) {
       return finish(s, o);
     },
 
-    /** Layout 09 — Big stat callout. Round numbers only; always cite N and time frame. */
+    /** Layout 09 — Big stat callout. Round numbers only; always state conditions. */
     bigStat(o = {}) {
       const s = newSlide();
       addSlideTitle(s, o.title, o.eyebrow);
-      s.addText(o.stat || "87%", {
+      const stat = o.stat || "87%";
+      s.addText(stat, {
         x: 0.5,
         y: 1.9,
         w: 5,
         h: 2.2,
         fontFace: HEAD,
-        fontSize: 144,
+        // Auto-fit: 144 pt holds about four characters in the 5 in column.
+        // Longer figures ("€1.4m", "18 months", "3.2x") would wrap onto a
+        // second line and collide with the title, so scale them down instead.
+        fontSize: o.statFontSize || fitStatFontSize(stat, 5.0, 144),
         color: C.accent,
         margin: 0,
         valign: "middle",
@@ -1585,4 +1624,11 @@ async function flattenChartCategories(pptxBuffer) {
   });
 }
 
-module.exports = { createDeck, PALETTES, NOTE, G, flattenChartCategories };
+module.exports = {
+  createDeck,
+  PALETTES,
+  NOTE,
+  G,
+  flattenChartCategories,
+  fitStatFontSize,
+};

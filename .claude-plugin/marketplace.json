@@ -11,8 +11,8 @@
   "plugins": [
     {
       "name": "engineering-deck",
-      "description": "Build engineering and technical presentations as editable .pptx files — design reviews, architecture walkthroughs, tech talks, RFC and ADR presentations, postmortems, benchmark reports, migration proposals, engineering onboarding. Bundles the engineering-deck skill — an 18-layout design system in two palettes (Lean Corporate teal / Warm Editorial burgundy) with a ready pptxgenjs layout library, a template generator, and an automated QA checker — plus the /engineering-deck command that turns a brief into a finished deck.",
-      "version": "2.0.0",
+      "description": "Build engineering and business presentations as editable .pptx files. Engineering — design reviews, architecture walkthroughs, tech talks, RFC and ADR presentations, postmortems, benchmark and migration reports, engineering onboarding. Business — business cases and investment proposals, steering committee and program status updates, quarterly business reviews, strategy and roadmap decks, vendor evaluations and build-vs-buy, operating-model changes. Bundles the engineering-deck skill — an 18-layout design system in two palettes (Lean Corporate teal / Warm Editorial burgundy) with a ready pptxgenjs layout library, a template generator, and an automated QA checker — plus the /engineering-deck command that turns a brief into a finished deck.",
+      "version": "2.1.0",
       "source": "./plugins/engineering-deck",
       "author": {
         "name": "Giorgos Marinos"

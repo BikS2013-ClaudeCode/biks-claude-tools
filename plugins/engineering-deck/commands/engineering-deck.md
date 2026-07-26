@@ -1,5 +1,5 @@
 ---
-description: Build an engineering or technical presentation (.pptx) from a brief — design reviews, architecture walkthroughs, tech talks, postmortems, benchmark reports. 18 layouts, teal or burgundy palette, Greek speaker notes, automated QA
+description: Build an engineering or business presentation (.pptx) from a brief — design reviews, architecture walkthroughs, tech talks, postmortems, benchmark reports, business cases, steering updates, quarterly reviews, strategy and roadmap decks, vendor evaluations. 18 layouts, teal or burgundy palette, Greek speaker notes, automated QA
 argument-hint: <brief> [--palette teal|burgundy] [--slides N] [--out path.pptx]
 allowed-tools:
   - Read
@@ -13,10 +13,13 @@ user-invocable: true
 ---
 
 <objective>
-Turn a talk brief into a finished, editable `.pptx` in the engineering deck
-template. The command owns the interaction (collecting what the brief does not
-say, confirming the outline, reporting the result); the `engineering-deck`
-skill owns the design system.
+Turn a talk brief into a finished, editable `.pptx` in the engineering-deck
+template, which covers two families: engineering decks (design reviews,
+architecture walkthroughs, tech talks, postmortems, benchmarks) and business
+decks (business cases, steering updates, quarterly reviews, strategy and
+roadmap, vendor evaluations). The command owns the interaction (collecting what
+the brief does not say, confirming the outline, reporting the result); the
+`engineering-deck` skill owns the design system.
 
 Argument: `$ARGUMENTS` — a free-text brief, optionally with `--palette`,
 `--slides`, and `--out` flags. Empty arguments means ask for the brief.
@@ -41,20 +44,27 @@ Argument: `$ARGUMENTS` — a free-text brief, optionally with `--palette`,
    If the brief is empty, ask for it with `AskUserQuestion`. Never invent a
    topic.
 
-3. **Identify the deck type** — design review, architecture walkthrough, tech
-   talk, postmortem, benchmark report, onboarding, or training. It determines
-   the structure far more than the topic does. Say which one you picked.
+3. **Identify the family and the deck type.** Engineering — design review,
+   architecture walkthrough, tech talk, postmortem, benchmark report,
+   onboarding. Business — business case or investment proposal, steering or
+   program status update, quarterly business review, strategy or roadmap deck,
+   vendor evaluation or build-vs-buy, operating-model change. The family picks
+   the canonical spine in `references/layouts.md` §Selection; the type picks
+   the variant. It determines the structure far more than the topic does. Say
+   which one you picked.
 
-4. **Fill the gaps.** The template needs: topic, audience, talk length, speaker
-   name and team, and the date. A design review also needs the decision being
-   asked for; a postmortem needs the incident and its impact. Infer what you
-   safely can from the brief; ask with a single `AskUserQuestion` (grouped, not
-   one at a time) for what genuinely changes the deck. Do not ask about
+4. **Fill the gaps.** Every deck needs: topic, audience, talk length, speaker
+   name and team, and the date. Beyond that, by type — a design review needs
+   the decision being asked for; a postmortem the incident and its impact; a
+   business case the ask, the assumptions behind the numbers, and who approves;
+   a steering update the reporting period and the workstream owners. Infer what
+   you safely can from the brief; ask with a single `AskUserQuestion` (grouped,
+   not one at a time) for what genuinely changes the deck. Do not ask about
    anything the brief already settles.
 
-   Palette, if not given: `teal` — the default for engineering, platform, and
-   product work. Use `burgundy` for research-flavoured or academic-conference
-   material. State the choice; don't ask.
+   Palette, if not given: `teal` — the default for both families. Use
+   `burgundy` for research-flavoured or academic-conference material. State the
+   choice; don't ask.
 
 5. **Size the deck.** Default is the talk length: roughly one slide per minute,
    capped at 18. `--slides` overrides. Start from the canonical structure in
@@ -76,11 +86,14 @@ Argument: `$ARGUMENTS` — a free-text brief, optionally with `--palette`,
    `NOTE(purpose, tips)` and a `section` footer label. Real content only — no
    `lorem`, no `TODO`, no `[insert]`.
 
-   Technical content has a specific failure mode: confident, invented numbers.
+   Both families share a specific failure mode: confident, invented numbers.
    Never fabricate latencies, throughput figures, error rates, benchmark
-   results, commit hashes, ADR numbers, or citations. If the brief does not
-   supply a number, ask for it, or write the slide without it and say so in the
-   report. A plausible-looking benchmark that nobody ran is worse than a gap.
+   results, commit hashes, ADR numbers, costs, savings, ROI figures, headcounts,
+   market sizes, contract terms, or citations. If the brief does not supply a
+   number, ask for it, or write the slide without it and say so in the report. A
+   plausible-looking benchmark that nobody ran, or a saving nobody modelled, is
+   worse than a gap. Where a figure is a forecast rather than an actual, label
+   it as one on the slide.
 
 9. **Build and QA.**
    ```bash
@@ -100,8 +113,9 @@ Argument: `$ARGUMENTS` — a free-text brief, optionally with `--palette`,
 </process>
 
 <constraints>
-- Never fabricate measurements, benchmarks, incident details, citations, commit
-  hashes, or internal document identifiers. Ask, or leave the gap and say so.
+- Never fabricate measurements, benchmarks, incident details, financial figures,
+  costs, savings, market data, contract terms, citations, commit hashes, or
+  internal document identifiers. Ask, or leave the gap and say so.
 - Never hard-code page numbers — `deck-lib.js` handles numbering.
 - Never mix the two palettes in one deck.
 - Do not upload anything to Drive or send anything anywhere unless asked.

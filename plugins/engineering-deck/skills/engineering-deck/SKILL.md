@@ -1,14 +1,20 @@
 ---
 name: engineering-deck
-description: Build engineering and technical presentations as editable .pptx files — design reviews, architecture walkthroughs, tech talks, conference talks, RFC and ADR presentations, incident and postmortem reviews, benchmark and migration reports, engineering onboarding and technical training. Uses a fixed design system of 18 layouts in two palettes with a pptxgenjs layout library, a template generator, and an automated QA checker. Use whenever the user asks for a technical deck, an architecture or design-review presentation, a tech talk, a postmortem deck, an engineering training deck, or asks to rebuild an existing deck in this template.
+description: Build engineering and business presentations as editable .pptx files. Engineering — design reviews, architecture walkthroughs, tech talks, RFC and ADR presentations, postmortems, benchmark and migration reports, engineering onboarding. Business — business cases and investment proposals, steering committee and program status updates, quarterly business reviews, strategy and roadmap decks, vendor evaluations and build-vs-buy, operating-model changes. Uses a fixed design system of 18 layouts in two palettes with a pptxgenjs layout library, a template generator, and an automated QA checker. Use whenever the user asks for a technical or business deck — an architecture or design review, a tech talk, a postmortem, a business case, a steering or status update, a strategy or roadmap presentation, a vendor comparison — or asks to rebuild an existing deck in this template.
 ---
 
-# Engineering presentation template
+# Engineering & business presentation template
 
-A design system for talks that have to explain how something works: design
-reviews, architecture walkthroughs, tech talks, postmortems, benchmark
-write-ups, migration proposals, engineering onboarding. Output is a real
+A design system for talks that have to make a case: design reviews,
+architecture walkthroughs, postmortems and benchmark write-ups on the
+engineering side; business cases, steering updates, quarterly reviews, strategy
+and roadmap decks, vendor evaluations on the business side. Output is a real
 `.pptx` with editable native objects — no screenshots, no image-only slides.
+
+The two families share the same spine, which is why they share a template: a
+situation, the options, the evidence, and the decision being asked for. A
+design review and an investment proposal differ in vocabulary, not in
+structure.
 
 The system is deliberately narrow. There are 18 layouts, two palettes, two
 fonts, and a fixed grid. Every deck is a composition of those pieces. When
@@ -24,20 +30,27 @@ and Google Slides with no scaling step.
 
 ## Build workflow
 
-1. **Pick the palette.** `teal` for engineering, platform, and product decks —
-   the default, and it matches other LeanPresentationStyle material.
-   `burgundy` for research-flavoured or editorial material: papers, formal
-   evaluations, academic-conference audiences. Never mix palettes in one deck.
-2. **Map the brief to layouts.** Use the decision table in
+1. **Identify the deck type.** Engineering (design review, architecture
+   walkthrough, tech talk, postmortem, benchmark report, onboarding) or
+   business (business case, steering update, quarterly review, strategy or
+   roadmap, vendor evaluation). It drives the structure far more than the topic
+   does — `references/layouts.md` §Selection carries a canonical spine per
+   family plus variants within each.
+2. **Pick the palette.** `teal` is the default for both families — engineering,
+   platform, product, and business decks alike — and it matches other
+   LeanPresentationStyle material. `burgundy` for research-flavoured or
+   editorial material: papers, formal evaluations, academic-conference
+   audiences. Never mix palettes in one deck.
+3. **Map the brief to layouts.** Use the decision table in
    `references/layouts.md` §Selection. For a 20–25 minute talk start from the
    canonical structure there and cut, don't pad.
-3. **Write the build script.** Require `assets/deck-lib.js` and call one
+4. **Write the build script.** Require `assets/deck-lib.js` and call one
    method per slide. Do not hand-roll pptxgenjs calls — the library already
    encodes the grid, the colour rules, and the footer.
-4. **Write Greek speaker notes for every slide** with the `NOTE(purpose, tips)`
-   helper. This is not optional; the notes are how the next engineer picks the
+5. **Write Greek speaker notes for every slide** with the `NOTE(purpose, tips)`
+   helper. This is not optional; the notes are how the next person picks the
    deck up and re-presents it.
-5. **Run the QA.** `node assets/qa-check.js <deck>.pptx`. Exit code 0 or fix
+6. **Run the QA.** `node assets/qa-check.js <deck>.pptx`. Exit code 0 or fix
    what it reports. Then do the visual pass in `references/qa-checklist.md`.
 
 ## Minimal example
@@ -71,6 +84,26 @@ deck.qa({ contact: ["Name", "name@org.gr"], notes: NOTE("Κλείσιμο.", [])
 deck.save("design-review.pptx").then((f) => console.log("Saved", f));
 ```
 
+The same methods carry a business deck — only the vocabulary changes:
+
+```javascript
+deck.cover({
+  eyebrow: "BUSINESS CASE",
+  title: "Consolidating the vendor stack",
+  subtitle: "One platform instead of four, and what it costs to get there",
+  author: "Name", affiliation: "IDP", date: "July 2026",
+  notes: NOTE("Εξώφυλλο.", ["Ο υπότιτλος λέει το αίτημα, όχι το context."]),
+});
+
+deck.bigStat({
+  eyebrow: "THE CASE", title: "What consolidation returns", section: "Situation",
+  stat: "€1.4m", label: "annual run-rate saving from year two",
+  body: "Net of migration cost, at current contracted volumes.",
+  source: "Source: vendor contracts + FY26 volume plan.",
+  notes: NOTE("Το νούμερο που στηρίζει το αίτημα.", ["Πάντα με τις παραδοχές."]),
+});
+```
+
 Every layout method takes `notes` (Greek speaker note) and `section` (footer
 label). The footer rule, the section label, and the auto-updating slide number
 are added for you.
@@ -82,10 +115,14 @@ node assets/build-template.js --palette teal     -o template-teal.pptx
 node assets/build-template.js --palette burgundy -o template-burgundy.pptx
 ```
 
-Produces an 18-slide deck — one slide per layout, filled with engineering
-placeholder content, Greek speaker notes throughout. Prebuilt copies are in
-`templates/`. Use them as a visual index, or open one and overwrite slide by
-slide when you would rather edit than script.
+Produces an 18-slide deck — one slide per layout, Greek speaker notes
+throughout. Prebuilt copies are in `templates/`. Use them as a visual index, or
+open one and overwrite slide by slide when you would rather edit than script.
+
+The reference deck is filled with engineering placeholder content (a retrieval
+design review). That is a worked example, not a restriction — the layouts are
+shared, and `references/layouts.md` carries the business counterpart for every
+layout where the two families diverge.
 
 ## The rules that matter most
 
@@ -102,7 +139,9 @@ These are the ones that separate a deck in this system from a generic one:
    A benchmark chart without the sentence saying what it means is not an
    argument — it is a picture.
 7. **Numbers carry their conditions.** A latency figure without the
-   percentile, the load, and the hardware is decoration.
+   percentile and the load, a saving without the assumptions and the base year
+   — both are decoration. In an engineering room and a steering committee
+   alike, the conditions are the argument.
 
 The full set, with the reasoning and the pptxgenjs traps behind each one, is in
 `references/design-system.md`.

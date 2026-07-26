@@ -60,10 +60,10 @@ academic-conference talks, long-form technical writing turned into slides.
 | `line` | `CCE4E6` | dividers, borders |
 | `chartA/B/C` | `007B85` / `005F67` / `00454B` | teal ramp |
 
-The default. Use for engineering, platform, product, and strategy decks —
-design reviews, architecture walkthroughs, tech talks, postmortems — and
-whenever the deck sits next to other LeanPresentationStyle work (same `007B85`
-accent).
+The default, for both deck families. Engineering — design reviews, architecture
+walkthroughs, tech talks, postmortems. Business — business cases, steering
+updates, quarterly reviews, strategy and roadmap decks. Also whenever the deck
+sits next to other LeanPresentationStyle work (same `007B85` accent).
 
 ### Usage rules
 
@@ -147,8 +147,10 @@ createDeck({ palette: "teal", headFont: "Segoe UI" })   // or "Source Sans 3"
     layout, and 1–3 presenter tips.
 12. **Every number carries its conditions, every claim its source.** A latency
     figure without the percentile and the load, a benchmark without the commit,
-    a diagram without the ADR it came from — all decoration. In a technical
-    room the conditions are the argument.
+    a saving without its assumptions and base year, a diagram without the ADR
+    it came from — all decoration. In an engineering room and a steering
+    committee alike, the conditions are the argument. Mark forecasts as
+    forecasts on the slide, not in the notes.
 
 `deck-lib.js` enforces 4–10 structurally. 1, 2, 3, 11, and 12 are editorial —
 they are yours to hold.

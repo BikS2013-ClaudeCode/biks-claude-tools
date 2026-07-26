@@ -33,6 +33,11 @@ Render the deck and look at every slide. Without LibreOffice installed, the
 Google Slides round-trip below doubles as the renderer.
 
 - [ ] No text overflow or clipping at slide edges
+- [ ] The big stat sits on **one line** — a wrapped figure collides with the
+      title. `bigStat` auto-scales the size, but a long string with an
+      unexpected glyph can still spill; pass `statFontSize` to force it down.
+      No automated check can see this — text overflow is invisible in the
+      geometry the QA script reads.
 - [ ] No element crosses the 0.5 in safe margin
 - [ ] Footer present on every slide
 - [ ] Eyebrows are ALL CAPS and accent-coloured

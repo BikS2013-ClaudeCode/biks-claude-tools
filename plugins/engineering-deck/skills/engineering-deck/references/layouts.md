@@ -19,28 +19,32 @@ outside the band.
 
 ## Selection
 
-| If the content is… | Method | Layout |
-|---|---|---|
-| Opening | `cover` | 01 |
-| Meta-explanation of the template | `howToUse` | 02 |
-| Section map / agenda | `agenda` | 03 |
-| Transition between major parts | `sectionDivider` | 04 |
-| Up to 3 points with sub-details + one key takeaway | `contentCallout` | 05 |
-| Two options, two approaches, two designs | `twoColumn` | 06 |
-| An architecture or sequence diagram is the point | `imageText` | 07 |
-| 3 MECE design principles, guarantees, or components | `threePillars` | 08 |
-| A single headline number — latency, cost, error rate | `bigStat` | 09 |
-| Current vs proposed state; before/after a migration | `beforeAfter` | 10 |
-| A design tenet, a postmortem finding, a quotation | `pullQuote` | 11 |
-| A benchmark, a trend, a load profile | `chart` | 12 |
-| A pipeline, a request path, a rollout in 3–5 stages | `timeline` | 13 |
-| A comparison matrix or a benchmark table | `table` | 14 |
-| What the audience must remember / what happens next | `takeaways` | 15 |
-| Sources: papers, RFCs, ADRs, repos, dashboards | `references` | 16 |
-| Closing | `qa` | 17 |
-| Appendix / design reference | `designTokens` | 18 |
+The template serves two families of deck — engineering and business. They share
+the same layouts because they share the same spine: a situation, the options,
+the evidence, and the decision being asked for. Only the vocabulary differs.
 
-### Canonical structure — 20–25 minute technical talk
+| If the content is… | Engineering example | Business example | Method | Layout |
+|---|---|---|---|---|
+| Opening | — | — | `cover` | 01 |
+| Meta-explanation of the template | — | — | `howToUse` | 02 |
+| Section map / agenda | — | — | `agenda` | 03 |
+| Transition between major parts | — | — | `sectionDivider` | 04 |
+| Up to 3 points + one key takeaway | What breaks today | The situation and its driver | `contentCallout` | 05 |
+| Two options of equal weight | Two designs | Build vs buy; two strategies | `twoColumn` | 06 |
+| A visual is the primary carrier | Architecture diagram | Org chart, market map, journey | `imageText` | 07 |
+| 3 MECE items | Design principles, guarantees | Strategic pillars, workstreams | `threePillars` | 08 |
+| A single headline number | Latency, error rate | Saving, revenue at risk, ROI | `bigStat` | 09 |
+| Current vs target state | Before/after a migration | Current vs target operating model | `beforeAfter` | 10 |
+| One authoritative line | Design tenet, postmortem finding | Customer quote, board mandate, regulatory requirement | `pullQuote` | 11 |
+| A trend or distribution | Benchmark, load profile | Cost trend, volumes, adoption | `chart` | 12 |
+| A sequence of 3–5 stages | Request path, rollout | Roadmap phases, milestone plan | `timeline` | 13 |
+| A comparison matrix | Benchmark table | Vendor or option scoring | `table` | 14 |
+| What to remember / what happens next | — | The ask | `takeaways` | 15 |
+| Sources | Papers, RFCs, ADRs, repos | Market reports, contracts, internal analyses | `references` | 16 |
+| Closing | — | — | `qa` | 17 |
+| Appendix / design reference | — | — | `designTokens` | 18 |
+
+### Canonical spine — engineering, 20–25 minutes
 
 Cover → Agenda → Divider "Problem" → Content + callout (what breaks today) →
 Big stat (the number that motivates the work) → Divider "Design" → Image + text
@@ -49,14 +53,40 @@ Timeline (request path or rollout stages) → Divider "Results" → Chart
 (benchmark) → Table (comparison matrix) → Divider "Adoption" → Before/After
 (migration path) → Takeaways → References → Q&A.
 
-That is 17 slides. Cut to fit; never exceed 18 for a 25-minute slot. `howToUse`
-and `designTokens` are template scaffolding — drop them from real decks.
-
 **Variants.** A *design review* usually swaps the benchmark chart for a second
 `twoColumn` weighing the rejected option. A *postmortem* runs Timeline
 (incident sequence) → Big stat (impact) → Content + callout (root cause) →
 Takeaways (action items with owners). An *onboarding* deck leans on
 `threePillars` and `timeline` and drops the stat and chart entirely.
+
+### Canonical spine — business, 20–25 minutes
+
+Cover → Agenda → Divider "Situation" → Content + callout (what is happening and
+why now) → Big stat (the number that motivates the decision) → Divider
+"Options" → Two-column (the two live options) → Table (options scored against
+the criteria) → Divider "Recommendation" → Before/After (current vs target) or
+Three-pillar (the workstreams) → Timeline (phases with dates) → Chart (cost,
+benefit, or volume profile) → Takeaways (the ask) → References → Q&A.
+
+**Variants.** A *steering or program update* drops the options section
+entirely and runs Timeline (plan vs actual) → Table (RAG status per workstream)
+→ Content + callout (the one blocker) → Takeaways (the decisions needed). A
+*quarterly business review* leads with Chart and Table and keeps a single
+`twoColumn` for what changed against plan. A *vendor evaluation* is Table-led:
+the criteria are the argument, so the comparison table comes early and
+everything after it explains a column.
+
+Both spines are 17 slides. Cut to fit; never exceed 18 for a 25-minute slot.
+`howToUse` and `designTokens` are template scaffolding — drop them from real
+decks.
+
+**Where business decks go wrong in this template.** The pull to fill slides
+with dense text is strongest in business decks, and this system will not absorb
+it: three bullets is the ceiling on `contentCallout`, three items on
+`threePillars`, three takeaways. If the material does not fit, it belongs in a
+pre-read document and the deck carries the argument. A steering committee that
+needs the detail will ask for the appendix; one that needs the decision will
+thank you for the whitespace.
 
 ---
 
@@ -178,6 +208,12 @@ deck.twoColumn({
 thumb on the scale. If you have already chosen, say so on the next slide rather
 than by starving one column. Never put a rule line under the headings.
 
+**Business variant.** Build vs buy, two vendors, two strategies, in-house vs
+outsourced. The discipline is the same and matters more: a steering committee
+reads a starved column as a decision already taken, and will spend the meeting
+on that instead of on your recommendation. Give the option you are rejecting
+its strongest form.
+
 ---
 
 ## 07 — `imageText(o)`
@@ -245,6 +281,31 @@ deck.bigStat({
 percentile, load, sample size, time window, and hardware where it matters. A
 number without its conditions is not evidence. One of these per deck.
 
+**Figure length is handled for you.** 144 pt holds about four characters in the
+5 in column; anything longer would wrap onto a second line and collide with the
+title. `bigStat` measures the string and scales the size down — `62%` stays at
+144 pt, `€1.4m` renders at 116, `18 months` at 61. Override with
+`statFontSize` if you want a specific size, but check the result: nothing in
+the QA script can see text overflow, only your eyes can.
+
+**Business variant.** A saving, a revenue at risk, a payback period, an ROI, a
+headcount. The conditions rule is the same and is where business decks fail
+hardest: a €1.4m saving needs the base year, the assumptions, whether it is
+gross or net of migration cost, and run-rate versus first-year. Put the figure
+in `stat`, the claim in `label`, the assumptions in `body`, and the origin in
+`source`. If the number is a forecast rather than an actual, say so on the
+slide — not in the notes.
+
+```javascript
+deck.bigStat({
+  eyebrow: "THE CASE", title: "What consolidation returns",
+  stat: "€1.4m",
+  label: "annual run-rate saving from year two",
+  body: "Net of migration cost, at current contracted volumes. Forecast, not yet contracted.",
+  source: "Source: vendor contracts + FY26 volume plan.",
+});
+```
+
 ---
 
 ## 10 — `beforeAfter(o)`
@@ -263,6 +324,11 @@ deck.beforeAfter({
 **Rule:** identical bullet counts and comparable sentence lengths on both sides,
 and the bullets must be parallel — bullet *n* on the right answers bullet *n* on
 the left.
+
+**Business variant.** Current versus target operating model, as-is versus
+to-be process, this year versus next. Keep the left card honest: an unfairly
+bleak "today" is the most common tell of a deck selling something, and the one
+person in the room who lives in that process will say so.
 
 ---
 
@@ -337,6 +403,24 @@ Spacing is computed from the step count. Steps beyond 5 are dropped.
 slides, or collapse to 3. For a request path, put the per-stage budget in the
 body — that is what makes the slide useful in a review.
 
+**Business variant.** Roadmap phases, milestone plan, rollout waves. Put the
+date and the owner in the body; a phase without either is an intention, not a
+plan. This layout is not a Gantt chart and should not be made into one — if the
+audience needs dependencies and overlaps, that is an appendix or a separate
+document.
+
+```javascript
+deck.timeline({
+  eyebrow: "ROADMAP", title: "Four phases to consolidation",
+  steps: [
+    { title: "Select",    body: "Vendor chosen — Q3, Procurement" },
+    { title: "Contract",  body: "Signed — Q4, Legal" },
+    { title: "Migrate",   body: "Two waves — Q1, Platform" },
+    { title: "Decommission", body: "Legacy off — Q2, Operations" },
+  ],
+});
+```
+
 ---
 
 ## 14 — `table(o)`
@@ -366,6 +450,26 @@ winning number, the significant result, the blocking constraint. Never
 decoration. Say in the source line what the accent means. Secondary values go
 muted. Six columns is the practical ceiling.
 
+**Business variant.** Vendor scoring, option comparison, RAG status per
+workstream. Two failure modes to avoid: scoring everything against criteria
+nobody agreed (state where the criteria come from in the source line), and
+colour-coding every cell until the accent means nothing. If three cells are
+accented in a five-row table, the table has no message — rank the criteria and
+accent only the column that decides.
+
+```javascript
+deck.table({
+  eyebrow: "STATUS", title: "Workstreams against plan",
+  headers: ["Workstream", "Owner", "Plan", "Forecast", "Status"],
+  rows: [
+    ["Migration", { text: "Team A", muted: true }, "Q3", "Q3", "on track"],
+    ["Contracts", { text: "Team B", muted: true }, "Q3",
+      { text: "Q4", significant: true }, { text: "at risk", significant: true }],
+  ],
+  source: "Source: programme plan v4, 2026-07-20. Accent marks slippage.",
+});
+```
+
 ---
 
 ## 15 — `takeaways(o)`
@@ -384,6 +488,12 @@ deck.takeaways({
 
 **Rule:** exactly 3, and the third must be actionable — a decision, an owner, a
 date. In a design review the third takeaway is what you are asking the room for.
+
+**Business variant.** In a business case or a steering update this slide *is*
+the deck; everything before it is support. Name the ask precisely: what
+decision, by whom, by when, and what happens if it slips. "We recommend
+proceeding" is not an ask — "approve €300k and a Q4 start, or the FY27 saving
+is lost" is.
 
 ---
 
@@ -411,6 +521,12 @@ identifier and path so the audience can actually find them.
 **Rule:** ≤ 4 entries per slide — a fifth goes on a second References slide.
 Never shrink the font to fit. Every number and every diagram in the deck should
 be traceable to something on this slide.
+
+**Business variant.** Market reports, analyst notes, contracts, internal
+analyses, the programme plan, the model the figures came out of. Cite the
+version and the date — "programme plan v4, 2026-07-20", not "programme plan".
+A financial figure whose model nobody can open is the fastest way to lose a
+steering committee.
 
 ---
 
