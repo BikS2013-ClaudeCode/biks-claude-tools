@@ -20,8 +20,10 @@ for. Output opens identically in PowerPoint and Google Slides.
 
 ## Installation
 
+This plugin is part of the `biks-claude-tools` marketplace.
+
 ```
-/plugin marketplace add BikS2013/biks-claude-tools
+/plugin marketplace add BikS2013-ClaudeCode/biks-claude-tools
 /plugin install engineering-deck@biks-claude-tools
 ```
 
