@@ -35,6 +35,21 @@ which instructions are in place for every project.
 - `/global-rules:uninstall-cleanup` removes the deployed files when you want
   them gone (dry run by default).
 
+## Installation
+
+This plugin is part of the `biks-claude-tools` marketplace.
+
+```
+/plugin marketplace add BikS2013-ClaudeCode/biks-claude-tools
+/plugin install global-rules@biks-claude-tools
+```
+
+Then restart Claude Code — the sync runs from a `SessionStart` hook, so the
+files land on the first session started after installation. The target
+directory is whatever `CLAUDE_CONFIG_DIR` points at (`~/.claude` by default);
+see [The config directory](#the-config-directory) before installing on a
+machine that runs more than one Claude environment.
+
 ## Content
 
 | Bundled file | Deployed to |

@@ -40,6 +40,7 @@ bundled with this plugin:
 This plugin is part of the `biks-claude-tools` marketplace.
 
 ```
+/plugin marketplace add BikS2013-ClaudeCode/biks-claude-tools
 /plugin install team-workflow-cmd@biks-claude-tools
 ```
 

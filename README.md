@@ -7,7 +7,7 @@ BIKS Claude Tools - Claude Code plugin marketplace
 Add this marketplace to Claude Code:
 
 ```bash
-/plugin marketplace add <your-github-username>/biks-claude-tools
+/plugin marketplace add BikS2013-ClaudeCode/biks-claude-tools
 ```
 
 ## Available Plugins

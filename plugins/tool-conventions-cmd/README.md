@@ -22,6 +22,7 @@ The command orchestrates these subagents (all included in `agents/`):
 This plugin is part of the `biks-claude-tools` marketplace.
 
 ```
+/plugin marketplace add BikS2013-ClaudeCode/biks-claude-tools
 /plugin install tool-conventions-cmd@biks-claude-tools
 ```
 
