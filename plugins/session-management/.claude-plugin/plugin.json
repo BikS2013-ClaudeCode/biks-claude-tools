@@ -1,0 +1,19 @@
+{
+  "name": "session-management",
+  "description": "Keeps a session's user-given name alive where Claude Code drops it: hooks re-apply the name badge and the live session-registry entry after /clear and /rename, so every registry reader keeps reporting the right name. Logs each named session's exit (name, folder, timestamp, id) to a history file, ships a resume picker that reopens any past named session in its own folder, and adds /session-management:session-handoff to compact the current session into <project>/handoff/<session-name>-NNN.md.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Giorgos Marinos"
+  },
+  "license": "MIT",
+  "keywords": [
+    "session",
+    "session-name",
+    "rename",
+    "clear",
+    "handoff",
+    "resume",
+    "history",
+    "hooks"
+  ]
+}
